@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="/utils/url_encoded_parser.js"></script>
+</head>
+
+<body>
+    <h1>Hello</h1>
+    <script>
+        console.log(window.Telegram.WebApp)
+        window.onload = function () {
+            let data = parseUrlEncoded(window.Telegram.WebApp.initData);
+            for (let key in data) {
+                let p = document.createElement('p');
+                p.innerHTML = key + ': ' + data[key];
+                document.body.appendChild(p);
+            }
+        };
+    </script>
+</body>
+
+</html>
