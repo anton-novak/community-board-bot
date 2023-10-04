@@ -4,7 +4,7 @@ const dotenv = require('dotenv');
 dotenv.config({ path: './.env' });
 
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
-// localhost is detected by telegram as invalid url, use something else.
+// localhost is detected by Telegraf as invalid url, use 127.0.0.1.
 const webAppButton = Markup.button.webApp("Open web", process.env.WEB_APP_URL);
 
 const mainKeyboard = Markup.keyboard([
@@ -33,7 +33,28 @@ const discardKeyboard = Markup.keyboard([
 bot.start((ctx) => {
     console.log(ctx.from);
     ctx.reply(welcomeMessage, mainKeyboard);
+    ctx.replyWithMediaGroup(
+        [
+            { 
+                media: { source: fs.readFileSync("./mocks/nokia_sample_pic.jpeg") },
+                caption: "This is a caption",
+                type: "photo"
+            },
+            { 
+                media: { source: fs.readFileSync("./mocks/nokia_sample_pic.jpeg") },
+                caption: "This is a caption",
+                type: "photo"
+            },
+        ]);
+    // ctx.replyWithPhoto({ source: fs.readFileSync("./mocks/nokia_sample_pic.jpeg") });
 });
+
+const editKeyboard = Markup.inlineKeyboard([
+    [Markup.button.callback("Title", "Title"),
+    Markup.button.callback("Description", "Description"),
+    Markup.button.callback("Price", "Price")],
+    [Markup.button.callback("Discard this ad", "Discard this ad")]
+]);
 
 // https://github.com/telegraf/telegraf/issues/705#issuecomment-549056045
 const postAdWizard = new Scenes.WizardScene(
@@ -54,23 +75,31 @@ const postAdWizard = new Scenes.WizardScene(
         return ctx.wizard.next();
     },
     (ctx) => {
+        console.log(ctx.wizard.cursor, "here");
         ctx.wizard.state.adData.price = ctx.message.text;
-        //     ctx.reply("Attach some photos to your ad", discardKeyboard);
-        //     return ctx.wizard.next();
-        // },
-        // (ctx) => {
+        // This works but need to force next step without user message.
+        ctx.reply("That's it, please review your ad", Markup.inlineKeyboard([Markup.button.callback("Review", "Review")]));
+        return ctx.wizard.next();
+    },
+    // TODO: Category selection step.
+    (ctx) => {
         //     const photos = ctx.message.photo;
         //     ctx.wizard.state.adData.photos = photos;
         // const photoIds = photos.map((photo) => photo.file_id);
         // const photoUrls = photoIds.map((id) => `https://api.telegram.org/file/bot${process.env.BOT_TOKEN}/${id}`);
         // const photoHtml = photoUrls.map((url) => `<a href="${url}">&#8205;</a>`).join('');
         // console.log(photos)
-        ctx.reply("Please review your ad");
+        // ctx.replyWithPhoto({ source: fs.readFileSync("./mocks/nokia_sample_pic.jpeg") });
+        // Review step No. 4.
         ctx.replyWithHTML(`
         <b>${ctx.wizard.state.adData.title}</b>
         \n${ctx.wizard.state.adData.description}
-        \n${ctx.wizard.state.adData.price}
+        \n${process.env.LOCAL_CURRENCY_SYMBOL}${ctx.wizard.state.adData.price}
+        \nContact @${ctx.from.username}
         `);
+        // https://core.telegram.org/bots/api#sending-files
+        // this method accepts either HTTP URL or Telegram's file_id.
+        // https://github.com/feathers-studio/telegraf-docs/blob/master/examples/media-bot.ts
         // \n${photoHtml}
         ctx.reply("Is this correct?", Markup.inlineKeyboard([
             Markup.button.callback("Yes", "yes"),
@@ -79,14 +108,39 @@ const postAdWizard = new Scenes.WizardScene(
         return ctx.wizard.next();
     },
     (ctx) => {
+        console.log(ctx.wizard.cursor);
         if (ctx.callbackQuery.data === "yes") {
-            ctx.reply("Your ad was posted and will be added to the community ads list",
+            ctx.reply("Your ad was posted and will be added to the community ads list soon",
                 Markup.removeKeyboard());
+            return ctx.scene.leave();
         } else if (ctx.callbackQuery.data === "no") {
-            // TODO: Add a way to go back to previous step to edit. ctx.wizard.cursor, ctx.wizard.selectStep(index)
-            ctx.reply("Ad discarded, try again", Markup.removeKeyboard());
+            ctx.reply("What would you like to change?", editKeyboard);
+            return ctx.wizard.next();
         }
-        return ctx.scene.leave();
+    }, // Editing user path.
+    (ctx) => {
+        console.log(ctx.wizard.cursor);
+        if (ctx.callbackQuery.data === "Title") {
+            ctx.wizard.state.adData.toChange = "title";
+            ctx.reply("Enter new title", discardKeyboard);
+            return ctx.wizard.next();
+        } else if (ctx.callbackQuery.data === "Description") {
+            ctx.reply("Enter new description", discardKeyboard);
+            ctx.wizard.state.adData.toChange = "description";
+            return ctx.wizard.next();
+        } else if (ctx.callbackQuery.data === "Price") {
+            ctx.reply("Enter new price", discardKeyboard);
+            ctx.wizard.state.adData.toChange = "price";
+            return ctx.wizard.next();
+        } else if (ctx.callbackQuery.data === "Discard this ad") {
+            ctx.reply("Ad discarded", Markup.removeKeyboard());
+            return ctx.scene.leave();
+        }
+    },
+    (ctx) => {
+        ctx.wizard.state.adData[ctx.wizard.state.adData.toChange] = ctx.message.text;
+        ctx.reply("Changes saved, please review your ad", Markup.inlineKeyboard([Markup.button.callback("Review", "Review")]));
+        return ctx.wizard.selectStep(4);
     }
 );
 
