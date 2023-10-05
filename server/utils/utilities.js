@@ -12,3 +12,16 @@ function parseUrlEncoded(string) {
     const userObject = JSON.parse(queryObject.user);
     return userObject;
 }
+
+function getMediaGroupPhotos(photosArray) {
+    return photosArray.map((photo) => {
+        console.log(photo);
+        return {
+            media: photo[0].file_id,
+            caption: "Ad photo",
+            type: "photo"
+        }
+    });
+}
+
+module.exports = { getMediaGroupPhotos, parseUrlEncoded };

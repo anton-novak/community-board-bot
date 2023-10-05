@@ -10,10 +10,18 @@
   "license": "ISC",
   "dependencies": {
     "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "nan": "^2.18.0",
+    "nano": "^10.1.2",
     "telebot": "^1.4.1",
-    "telegraf": "^4.14.0"
+    "telegraf": "^4.14.0",
+    "telegraf-session-local": "^2.1.1",
+    "ts-node": "^10.9.1",
+    "tsc": "^2.0.4"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "@types/node": "^20.8.2",
+    "nodemon": "^3.0.1",
+    "typegram": "^5.2.0"
   }
 }

@@ -1,6 +1,8 @@
 const { Telegraf, Markup, Scenes, session } = require('telegraf');
 const fs = require('fs');
 const dotenv = require('dotenv');
+const { getMediaGroupPhotos } = require('../utils/utilities');
+const { postAd } = require('./model');
 dotenv.config({ path: './.env' });
 
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
@@ -33,19 +35,7 @@ const discardKeyboard = Markup.keyboard([
 bot.start((ctx) => {
     console.log(ctx.from);
     ctx.reply(welcomeMessage, mainKeyboard);
-    ctx.replyWithMediaGroup(
-        [
-            {
-                media: { source: fs.readFileSync("./mocks/nokia_sample_pic.jpeg") },
-                caption: "This is a caption",
-                type: "photo"
-            },
-            {
-                media: { source: fs.readFileSync("./mocks/nokia_sample_pic.jpeg") },
-                caption: "This is a caption",
-                type: "photo"
-            },
-        ]);
+
     // ctx.replyWithPhoto({ source: fs.readFileSync("./mocks/nokia_sample_pic.jpeg") });
 });
 
@@ -79,6 +69,9 @@ const categoryKeyboard = Markup.inlineKeyboard([
     ]
 ]);
 
+bot.use(session());
+
+
 // https://github.com/telegraf/telegraf/issues/705#issuecomment-549056045
 const postAdWizard = new Scenes.WizardScene(
     'post_ad_wizard',
@@ -109,19 +102,23 @@ const postAdWizard = new Scenes.WizardScene(
     },
     (ctx) => {
         ctx.wizard.state.adData.price = ctx.message.text;
+        ctx.reply("Attach a photo to your ad",
+            Markup.inlineKeyboard([Markup.button.callback("No photo for this ad", "noPhoto")]));
+        ctx.wizard.state.adData.photos = [];
+        return ctx.wizard.next();
+    },
+    (ctx) => {
+        if (ctx.callbackQuery && ctx.callbackQuery.data === "noPhoto") {
+            null;
+        } else {
+            ctx.wizard.state.adData.photos.push(ctx.message.photo);
+        }
         // This works but need to force next step without user message.
         ctx.reply("That's it, please review your ad", Markup.inlineKeyboard([Markup.button.callback("Review", "Review")]));
         return ctx.wizard.next();
     },
     (ctx) => {
-        //     const photos = ctx.message.photo;
-        //     ctx.wizard.state.adData.photos = photos;
-        // const photoIds = photos.map((photo) => photo.file_id);
-        // const photoUrls = photoIds.map((id) => `https://api.telegram.org/file/bot${process.env.BOT_TOKEN}/${id}`);
-        // const photoHtml = photoUrls.map((url) => `<a href="${url}">&#8205;</a>`).join('');
-        // console.log(photos)
-        // ctx.replyWithPhoto({ source: fs.readFileSync("./mocks/nokia_sample_pic.jpeg") });
-        // Review step No. 5.
+        // Review step No. 6.
         ctx.replyWithHTML(`
         <b>${ctx.wizard.state.adData.title}</b>
         \n<i>${ctx.wizard.state.adData.category}</i>
@@ -129,10 +126,15 @@ const postAdWizard = new Scenes.WizardScene(
         \n${process.env.LOCAL_CURRENCY_SYMBOL}${ctx.wizard.state.adData.price}
         \nContact @${ctx.from.username}
         `);
+        // Bot API has a design flaw for media groups: you can't get all file references from a media group sent by a user.
+        // https://github.com/python-telegram-bot/python-telegram-bot/wiki/Frequently-requested-design-patterns#how-do-i-deal-with-a-media-group
+        // Do all users have usernames? A workaround: `tg://user?id=123456789`
         // https://core.telegram.org/bots/api#sending-files
         // this method accepts either HTTP URL or Telegram's file_id.
         // https://github.com/feathers-studio/telegraf-docs/blob/master/examples/media-bot.ts
         // \n${photoHtml}
+        ctx.replyWithMediaGroup(getMediaGroupPhotos(ctx.wizard.state.adData.photos));
+        // ctx.replyWithMediaGroup()
         ctx.reply("Is this correct?", Markup.inlineKeyboard([
             [
                 Markup.button.callback("Yes", "yes"),
@@ -144,11 +146,15 @@ const postAdWizard = new Scenes.WizardScene(
         ]));
         return ctx.wizard.next();
     },
-    (ctx) => {
+    async (ctx) => {
         try {
             if (ctx.callbackQuery.data === "yes") {
+                // Save ad to db.
+                ctx.wizard.state.adData.username = ctx.from.username;
+                ctx.wizard.state.adData.user_id = ctx.from.id;
+                await postAd(ctx.wizard.state.adData);
                 ctx.reply("Your ad was posted and will be added to the community ads list soon",
-                Markup.removeKeyboard());
+                    Markup.removeKeyboard());
                 return ctx.scene.leave();
             } else if (ctx.callbackQuery.data === "no") {
                 ctx.reply("What would you like to change?", editKeyboard);
@@ -192,7 +198,7 @@ const postAdWizard = new Scenes.WizardScene(
             ctx.wizard.state.adData.category = ctx.callbackQuery.data;
         }
         ctx.reply("Changes saved, please review your ad", Markup.inlineKeyboard([Markup.button.callback("Review", "Review")]));
-        return ctx.wizard.selectStep(5);
+        return ctx.wizard.selectStep(6);
     }
 );
 
@@ -201,7 +207,6 @@ const postAdWizard = new Scenes.WizardScene(
 // What if multiple photos? How to handle that?
 
 const stage = new Scenes.Stage([postAdWizard]);
-bot.use(session());
 bot.use(stage.middleware());
 
 bot.hears("Post an ad", (ctx) => ctx.scene.enter("post_ad_wizard"));
@@ -209,6 +214,8 @@ bot.hears("Discard this ad", (ctx) => {
     ctx.reply("Ad discarded", Markup.removeKeyboard());
     postAdWizard.leave();
 });
+
+bot.launch();
 
 // bot.on("photo", async (ctx) => {
 //     console.log(ctx.message.photo);
@@ -222,7 +229,7 @@ bot.hears("Discard this ad", (ctx) => {
 //     ctx.replyWithPhoto(ctx.message.photo[0].file_id);
 // });
 
-bot.launch();
+// bot.launch();
 
 // https://github.com/feathers-studio/telegraf-docs/blob/master/examples/live-location-bot.ts
 // examples repo
@@ -230,3 +237,5 @@ bot.launch();
 // make react app that talks to the db, deploy and test
 // https://core.telegram.org/bots/webapps#initializing-mini-apps
 // props and methods of window.Telegram.WebApp object
+
+module.exports = bot;
