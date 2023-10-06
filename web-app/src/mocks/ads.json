@@ -1,0 +1,70 @@
+[
+    {
+    "_id": "dc3ab857d1ac7b4523823aee15000752",
+    "_rev": "1-ee5219d5856b2ed34a90c89a1a7b1160",
+    "title": "Homo habilis",
+    "category": "Other",
+    "description": "An ancestor of homo sapiens.",
+    "price": "Free",
+    "timestamp": 1696506772027,
+    "photos": [
+      [
+        {
+          "file_id": "AgACAgIAAxkBAAIIjmUd-oTTkhGTDeA_-FmbyvTmZox0AALj0zEbKnDoSCQn8vK3eeh0AQADAgADcwADMAQ",
+          "file_unique_id": "AQAD49MxGypw6Eh4",
+          "file_size": 1710,
+          "width": 90,
+          "height": 90
+        },
+        {
+          "file_id": "AgACAgIAAxkBAAIIjmUd-oTTkhGTDeA_-FmbyvTmZox0AALj0zEbKnDoSCQn8vK3eeh0AQADAgADbQADMAQ",
+          "file_unique_id": "AQAD49MxGypw6Ehy",
+          "file_size": 21448,
+          "width": 320,
+          "height": 320
+        },
+        {
+          "file_id": "AgACAgIAAxkBAAIIjmUd-oTTkhGTDeA_-FmbyvTmZox0AALj0zEbKnDoSCQn8vK3eeh0AQADAgADeAADMAQ",
+          "file_unique_id": "AQAD49MxGypw6Eh9",
+          "file_size": 28103,
+          "width": 373,
+          "height": 373
+        }
+      ]
+    ]
+  },
+  {
+    "_id": "dc3ab857d1ac7b4523823aee15000752",
+    "_rev": "1-ee5219d5856b2ed34a90c89a1a7b1160",
+    "title": "Homo habilis",
+    "category": "Other",
+    "description": "An ancestor of homo sapiens.",
+    "price": "Free",
+    "timestamp": 1696500000000,
+    "photos": [
+      [
+        {
+          "file_id": "AgACAgIAAxkBAAIIjmUd-oTTkhGTDeA_-FmbyvTmZox0AALj0zEbKnDoSCQn8vK3eeh0AQADAgADcwADMAQ",
+          "file_unique_id": "AQAD49MxGypw6Eh4",
+          "file_size": 1710,
+          "width": 90,
+          "height": 90
+        },
+        {
+          "file_id": "AgACAgIAAxkBAAIIjmUd-oTTkhGTDeA_-FmbyvTmZox0AALj0zEbKnDoSCQn8vK3eeh0AQADAgADbQADMAQ",
+          "file_unique_id": "AQAD49MxGypw6Ehy",
+          "file_size": 21448,
+          "width": 320,
+          "height": 320
+        },
+        {
+          "file_id": "AgACAgIAAxkBAAIIjmUd-oTTkhGTDeA_-FmbyvTmZox0AALj0zEbKnDoSCQn8vK3eeh0AQADAgADeAADMAQ",
+          "file_unique_id": "AQAD49MxGypw6Eh9",
+          "file_size": 28103,
+          "width": 373,
+          "height": 373
+        }
+      ]
+    ]
+  }
+]

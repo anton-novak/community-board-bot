@@ -1,3 +1,7 @@
+const crypto = require("crypto");
+const dotenv = require('dotenv');
+dotenv.config({ path: '../.env' });
+
 function parseUrlEncoded(string) {
     const queryObject = {};
     const queryPairs = string.split("&");
@@ -8,7 +12,7 @@ function parseUrlEncoded(string) {
         const value = decodeURIComponent(pair[1]);
         queryObject[key] = value;
     };
-    
+
     const userObject = JSON.parse(queryObject.user);
     return userObject;
 }
@@ -23,5 +27,6 @@ function getMediaGroupPhotos(photosArray) {
         }
     });
 }
+
 
 module.exports = { getMediaGroupPhotos, parseUrlEncoded };

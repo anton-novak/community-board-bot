@@ -1,7 +1,7 @@
-const { Telegraf, Markup, Scenes, session } = require('telegraf');
+const { Telegraf, Markup, Scenes, session, Telegram } = require('telegraf');
 const fs = require('fs');
 const dotenv = require('dotenv');
-const { getMediaGroupPhotos } = require('../utils/utilities');
+const { getMediaGroupPhotos } = require('./utils/utilities');
 const { postAd } = require('./model');
 dotenv.config({ path: './.env' });
 
@@ -152,6 +152,7 @@ const postAdWizard = new Scenes.WizardScene(
                 // Save ad to db.
                 ctx.wizard.state.adData.username = ctx.from.username;
                 ctx.wizard.state.adData.user_id = ctx.from.id;
+                ctx.wizard.state.adData.timestamp = Date.now();
                 await postAd(ctx.wizard.state.adData);
                 ctx.reply("Your ad was posted and will be added to the community ads list soon",
                     Markup.removeKeyboard());
@@ -169,7 +170,7 @@ const postAdWizard = new Scenes.WizardScene(
         }
     }, // Editing user path.
     (ctx) => {
-        console.log(ctx.wizard.cursor);
+        // console.log(ctx.wizard.cursor);
         if (ctx.callbackQuery.data === "Title") {
             ctx.wizard.state.adData.toChange = "title";
             ctx.reply("Enter new title", discardKeyboard);
