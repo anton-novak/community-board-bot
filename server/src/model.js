@@ -13,9 +13,9 @@ async function getAllAds() {
     return Promise.all(ads);
 }
 
-async function getAd(id) {
-    const ad = await db.get(id);
+async function getAd(_id) {
+    const ad = await db.get(_id);
     return ad;
 }
 
-module.exports = { postAd, getAllAds };
+module.exports = { postAd, getAllAds, getAd };

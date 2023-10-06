@@ -1,6 +1,9 @@
 import { Ad } from "../customTypes"
 import { fetchTelegramPic } from "../services";
 import { useState, useEffect } from "react";
+import ItemModal from "./ItemModal";
+// https://loading.io/
+import spinner from "../assets/spinner.gif";
 
 type CardProps = {
     adData: Ad
@@ -8,6 +11,12 @@ type CardProps = {
 
 export default function ItemCard({ adData }: CardProps) {
     const [pic, setPic] = useState<string | undefined>(undefined);
+    const [showModal, setShowModal] = useState<boolean>(false);
+
+    function triggerModal() {
+        console.log("triggered");
+        setShowModal(!showModal);
+    }
 
     useEffect(() => {
         if (adData.photos.length > 0) {
@@ -21,33 +30,47 @@ export default function ItemCard({ adData }: CardProps) {
                     }
                 })
         }
-    }, [])
+    }, [adData.photos])
 
     return (
-        <div className="card media p-0" style={{ width: "95%" }}>
-            <figure className="image is-128x128 media-left m-1
+        <>
+            <div className="box p-0" style={{ width: "95%" }}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    triggerModal();
+                }}
+            >
+                <div className="media">
+                    <figure className="image is-128x128 media-left m-1
                 is-flex is-flex-direction-column is-justify-content-center">
-                { 
-                    pic ?
-                    <img src={pic} alt="Ad pic"/>
-                    : null
-                }
-            </figure>
-            <div className="media-content">
-                <div className="content m-3">
-                    <p>
-                        <small><i>{adData.category}</i></small>
-                        <br></br>
-                        <strong>{adData.title}</strong>
-                        <br></br>
-                        {adData.price}
-                        <br />
-                        <small>
-                            By <a href={`https://t.me/${adData.username}`}>{adData.username}</a> at {new Date(adData.timestamp).toDateString()}
-                        </small>
-                    </p>
+                        {
+                            pic ?
+                                <img src={pic} alt="Ad pic" />
+                                : <img src={spinner} alt="Loading spinner" />
+                        }
+                    </figure>
+                    <div className="media-content">
+                        <div className="content m-3">
+                            <p>
+                                <small className="tag mb-1 is-light"><i>{adData.category}</i></small>
+                                <br></br>
+                                <strong>{adData.title}</strong>
+                                <br></br>
+                                {adData.price}
+                                <br />
+                            </p>
+                        </div>
+                    </div>
                 </div>
+                <p className="subtitle is-size-7 m-2 has-text-centered">
+                    By <a href={`https://t.me/${adData.username}`}>{adData.username}</a> at {new Date(adData.timestamp).toDateString()}
+                </p>
             </div>
-        </div>
+            {
+                showModal ?
+                    <ItemModal trigger={triggerModal} adData={adData}></ItemModal>
+                    : null
+            }
+        </>
     )
 }

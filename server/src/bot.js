@@ -34,8 +34,10 @@ const discardKeyboard = Markup.keyboard([
 
 bot.start((ctx) => {
     console.log(ctx.from);
+    // console.log(ctx.chat);
+    chatId = ctx.message.chat.id;
+    console.log(chatId);
     ctx.reply(welcomeMessage, mainKeyboard);
-
     // ctx.replyWithPhoto({ source: fs.readFileSync("./mocks/nokia_sample_pic.jpeg") });
 });
 

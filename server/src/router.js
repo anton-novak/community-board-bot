@@ -1,5 +1,5 @@
 const { Router } = require('express'); // just to get the Router prop from express, rather than the whole package
-const { getAllAdsController, getTelegramPic } = require('./controllers.js');
+const { getAllAdsController, getTelegramPic, saveAd } = require('./controllers.js');
 const { validateTelegramHash } = require('./middleware.js');
 const router = Router();
 
@@ -8,6 +8,7 @@ const router = Router();
 
 router.get('/ads/:checkString', validateTelegramHash, getAllAdsController);
 router.get('/pics/:checkString/:file_id', validateTelegramHash, getTelegramPic);
+router.get('/save/:checkString/:_id', validateTelegramHash, saveAd);
 
 // router.post('/messages', () => {}); 
 // router.put('/messages/:id', messageController.postMessages); 

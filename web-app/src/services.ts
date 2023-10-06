@@ -29,3 +29,12 @@ export async function fetchTelegramPic(file_id: string) {
         console.error(error);
     }
 }
+
+export async function sendAdToUser(_id: string) {
+    try {
+        const response = await fetch(`${serverUrl}/save/${window.Telegram.WebApp.initData}/${_id}`);
+        return response;
+    } catch (error) {
+        console.error(error);
+    }
+}
