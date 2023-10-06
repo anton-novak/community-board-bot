@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import { Ad } from "../customTypes";
 import { useState, useEffect } from "react";
-import { fetchTelegramPic, sendAdToUser } from "../services";
+import { fetchTelegramPic, /* sendAdToUser */ } from "../services";
 import spinner from "../assets/spinner.gif";
 
 type ItemModalProps = {
@@ -43,7 +43,7 @@ export default function ItemModal({ trigger, adData }: ItemModalProps) {
                         <div className="card-content"
                         >
                             <p className="subtitle"><strong>{adData.title}</strong></p>
-                            <p className="subtitle">{adData.description}</p>
+                            <p className="subtitle is-size-6">{adData.description}</p>
                             <p className="subtitle">{adData.price}</p>
                         </div>
                         <div className="card-footer">

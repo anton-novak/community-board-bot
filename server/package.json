@@ -21,7 +21,10 @@
     "tsc": "^2.0.4"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.14",
+    "@types/express": "^4.17.18",
     "@types/node": "^20.8.2",
+    "@types/node-fetch": "^2.6.6",
     "nodemon": "^3.0.1",
     "typegram": "^5.2.0"
   }
