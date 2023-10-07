@@ -21,9 +21,6 @@ const miniAppKeyboard = Markup.inlineKeyboard([
     [webAppButton]
 ]);
 
-bot.hears("Browse community ads", (ctx) => {
-    ctx.reply("Open community board", miniAppKeyboard);
-});
 
 const welcomeMessage = "☀️ Hi, this bot can help you post and view local community ads. Please choose an option from the menu below.";
 
@@ -35,6 +32,19 @@ bot.start((ctx) => {
     let chatId = ctx.message.chat.id;
     console.log(ctx.from, "\nchat id", chatId);
     ctx.reply(welcomeMessage, mainKeyboard);
+});
+
+// Registering username checking middleware.
+bot.use((ctx, next) => {
+    if (ctx.from && !ctx.from.username) {
+        ctx.reply("⚠️ This bot is designed to connect people using Telegram usernames. Please set a username in Telegram settings and run the /start command again.");
+        return;
+    }
+    next();
+});
+
+bot.hears("Browse community ads", (ctx) => {
+    ctx.reply("Open community board", miniAppKeyboard);
 });
 
 const editKeyboard = Markup.inlineKeyboard([
@@ -263,7 +273,7 @@ const postAdWizard = new Scenes.WizardScene(
             } else {
                 ctx.wizard.state.adData.photos = ctx.message.photo;
             }
-        } 
+        }
         ctx.reply("✅ Changes saved, please review your ad", Markup.inlineKeyboard([Markup.button.callback("Review", "Review")]), discardKeyboard);
         return ctx.wizard.selectStep(6);
     }

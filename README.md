@@ -1,3 +1,7 @@
+# Community Board bot
+<p align="center">
+<img src="./for_readme/apartment_pic.png" height="300px"/>
+</p>
 Community Board bot is a Telegram bot with a mini-app that provides a convenient way to post and view ads for a local community: residents of an apartment block, employees of an office or any other. WIP.
 
 # Motivation
@@ -6,10 +10,12 @@ There are many C2C ad sites out there (like eBay), but sometimes they can be an 
 Often people community chats as ad boards, but there are a lot of disadvantages to that: the ads get lost in the stream of messages, there are limited ways to track them, and chat members can disapprove of flooding. Sometimes, there may be no chat at all, or some people do not wish to be part of them because of the toxicity. The Community Board bot solves these problems by providing a dedicated place for the ads while keeping it local.
 
 # Features
-* complete in-bot ad posting process with editing
-* easy-to-use amd lightweight web app interface for browsing that allows to filter and sort the ads
-* Telegram API-based image handling which keeps the service space requirements for the bot at the minimum
-* Telegram API-based authentication & security - the mini-app is not accessible to the web users in general
+* Complete in-bot ad posting process with editing, validation and error handling.
+* Easy-to-use and lightweight web app interface that allows to browse, filter and sort the ads.
+* One-click transition to Telegram chats with the posters to initiate a conversation about the ads.
+* Username checking aimed to ensure the ability to connect.
+* Telegram API-based image handling which keeps the server space to the minimum.
+* Telegram API-based authentication & security - the mini-app is not accessible from outside the bot.
 
 # Challenges & roadmap
 
