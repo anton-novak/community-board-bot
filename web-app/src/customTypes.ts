@@ -8,7 +8,7 @@ export type Ad = {
     username: string;
     user_id: number;
     timestamp: number;
-    photos: [PhotoSize[]];
+    photos: PhotoSize[];
 }
 
 type PhotoSize = {

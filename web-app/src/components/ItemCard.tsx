@@ -18,11 +18,14 @@ export default function ItemCard({ adData }: CardProps) {
         setShowModal(!showModal);
     }
 
+    // TODO: placeholder pic for no pic ads here and in modal.
+
     useEffect(() => {
         if (adData.photos.length > 0) {
             // file_ids for pics of different quality are different.
             // Here the second last is used which is ok for a thumbnail.
-            fetchTelegramPic(adData.photos[0][1].file_id)
+            console.log(adData.photos)
+            fetchTelegramPic(adData.photos[1].file_id)
                 .then(async blob => {
                     if (blob) {
                         const objectURL = URL.createObjectURL(blob);

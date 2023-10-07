@@ -1,10 +1,7 @@
 import { getAllAds, getAd } from './model';
-import { Telegram } from 'telegraf';
 import { Request, Response } from 'express';
-import { bot } from './bot';
+import { bot, telegram } from './bot';
 import fetch from 'node-fetch';
-
-const telegram = new Telegram(process.env.TELEGRAM_BOT_TOKEN!);
 
 export async function getAllAdsController (req: Request, res: Response) {
     try {

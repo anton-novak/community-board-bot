@@ -1,10 +1,11 @@
-import { Telegraf, Markup, Scenes, session } from 'telegraf';
+import { Telegraf, Markup, Scenes, session, Telegram } from 'telegraf';
 import dotenv from 'dotenv';
 import { postAd } from './model';
 dotenv.config({ path: './.env' });
 
 // Examples repo: https://github.com/feathers-studio/telegraf-docs/blob/master/examples/live-location-bot.ts.
 export const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN!);
+export const telegram = new Telegram(process.env.TELEGRAM_BOT_TOKEN!);
 // localhost is detected by Telegraf as invalid url, use 127.0.0.1 for development.
 const webAppButton = Markup.button.webApp("Open web", process.env.WEB_APP_URL!);
 
@@ -12,7 +13,7 @@ const mainKeyboard = Markup.keyboard([
     ["Post an ad"],
     ["Browse community ads"],
     ["View and edit my ads"],
-]);
+]).resize();
 
 const miniAppKeyboard = Markup.inlineKeyboard([
     [webAppButton]
@@ -22,7 +23,7 @@ const welcomeMessage = "☀️ Hi, this bot can help you post and view local com
 
 const discardKeyboard = Markup.keyboard([
     ["Discard this ad"]
-]);
+]).resize();
 
 bot.start((ctx) => {
     let chatId = ctx.message.chat.id;
@@ -30,6 +31,12 @@ bot.start((ctx) => {
     // ctx.reply(welcomeMessage, mainKeyboard);
     ctx.replyWithPhoto({ source: "./assets/apartment_pic.png" }, { caption: welcomeMessage })
         .then(() => ctx.reply("Please choose an option from the menu below ⬇️", mainKeyboard));
+    // TODO: to send regular messages to the user, check out node-cron package..
+    // setInterval(() => {
+    //     telegram.sendMessage(chatId, "hello");
+    // }, 10000);
+    // TODO: solution for chatid and sending saved messages => 
+    // registration, db record with username and chatid.
 });
 
 
@@ -142,7 +149,7 @@ const postAdWizard = new Scenes.WizardScene(
             return;
         }
         ctx.wizard.state.adData.price = ctx.message.text;
-        ctx.reply("Attach a photo to your ad",
+        ctx.reply("📷 Attach a photo to your ad",
             Markup.inlineKeyboard([Markup.button.callback("❌ No photo for this ad", "noPhoto")]), discardKeyboard);
         ctx.wizard.state.adData.photos = [];
         return ctx.wizard.next();
@@ -153,7 +160,7 @@ const postAdWizard = new Scenes.WizardScene(
         if (ctx.callbackQuery && ctx.callbackQuery.data === "noPhoto") {
             null;
         } else if (!ctx.message.photo) {
-            ctx.reply("📷 Please attach a photo to your ad", Markup.inlineKeyboard([Markup.button.callback("❌ No photo for this ad", "noPhoto")]), discardKeyboard);
+            ctx.reply("Please attach a photo to your ad", Markup.inlineKeyboard([Markup.button.callback("❌ No photo for this ad", "noPhoto")]), discardKeyboard);
             return;
         } else {
             ctx.wizard.state.adData.photos = ctx.message.photo;

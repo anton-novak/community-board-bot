@@ -15,7 +15,7 @@ export default function ItemModal({ trigger, adData }: ItemModalProps) {
     useEffect(() => {
         if (adData.photos.length > 0) {
             // file_ids for pics of different quality are different.
-            fetchTelegramPic(adData.photos[0][2].file_id)
+            fetchTelegramPic(adData.photos[2].file_id)
                 .then(async blob => {
                     if (blob) {
                         const objectURL = URL.createObjectURL(blob);
