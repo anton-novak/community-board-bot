@@ -19,6 +19,12 @@ export const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN!);
 
 const welcomeMessage = `☀️ Hi, this bot can help you post and view local community ads of ${process.env.COMMUNITY_LABEL}.`;
 
+const commands = [
+    { command: "start", description: "Restarts the bot" }
+];
+
+bot.telegram.setMyCommands(commands);
+
 bot.start(async (ctx) => {
     ctx.replyWithPhoto({ source: "./assets/apartment_pic.png" }, { caption: welcomeMessage })
     .then(() => ctx.reply("Please choose an option from the menu below ⬇️", mainKeyboard));
