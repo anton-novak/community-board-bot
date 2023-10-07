@@ -5,6 +5,7 @@ import express from 'express';
 import cors from 'cors';
 import { bot } from './bot';
 import { router } from './router';
+// import bodyParser from 'body-parser';
 
 const app = express();
 const port = process.env.SERVER_PORT;

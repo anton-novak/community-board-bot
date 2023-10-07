@@ -1,8 +1,10 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import { Ad } from "../customTypes";
 import { useState, useEffect } from "react";
-import { fetchTelegramPic, /* sendAdToUser */ } from "../services";
+import { fetchTelegramPic, sendAdToUser } from "../services";
 import spinner from "../assets/spinner.gif";
+import placeholder from "../assets/no_photo_500.png";
+import Notification from "./Notification";
 
 type ItemModalProps = {
     trigger: () => void;
@@ -11,6 +13,7 @@ type ItemModalProps = {
 
 export default function ItemModal({ trigger, adData }: ItemModalProps) {
     const [pic, setPic] = useState<string | undefined>(undefined);
+    const [notify, setNotify] = useState<boolean>(false);
 
     useEffect(() => {
         if (adData.photos.length > 0) {
@@ -22,6 +25,8 @@ export default function ItemModal({ trigger, adData }: ItemModalProps) {
                         setPic(objectURL);
                     }
                 })
+        } else {
+            setPic(placeholder);
         }
     }, [adData.photos])
 
@@ -48,11 +53,12 @@ export default function ItemModal({ trigger, adData }: ItemModalProps) {
                         </div>
                         <div className="card-footer">
                             <footer className="card-footer" style={{ width: "100%" }}>
-                                {/* <a onClick={(e) => {
+                                <a onClick={(e) => {
                                     e.preventDefault();
-                                    sendAdToUser(adData._id);
+                                    sendAdToUser(adData._id)
+                                        .then(() => {setNotify(true)})
                                 }
-                                } href="#" className="card-footer-item" style={{ maxWidth: "20%" }}>Save</a> */}
+                                } href="#" className="card-footer-item" style={{ maxWidth: "30%" }}>Save</a>
                                 <a href={`https://t.me/${adData.username}`} className="card-footer-item">Contact {adData.username}</a>
                                 <a href="#" className="card-footer-item"
                                     style={{ maxWidth: "30%" }}
@@ -66,7 +72,9 @@ export default function ItemModal({ trigger, adData }: ItemModalProps) {
                     </div>
                 </div>
             </div>
-            {/* <button className="modal-close is-large" aria-label="close"></button> */}
+            {
+                notify ? <Notification notification="Ad sent to chat" /> : null
+            }
         </div>
     )
 }

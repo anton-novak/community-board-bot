@@ -1,6 +1,6 @@
-import { Telegraf, Markup, Scenes, session, Telegram } from 'telegraf';
+import { Telegraf, Markup, Scenes, session } from 'telegraf';
 import dotenv from 'dotenv';
-import { postAd } from './model';
+import { postAd, registerUser } from './model';
 import {
     mainKeyboard,
     miniAppKeyboard,
@@ -16,22 +16,21 @@ dotenv.config({ path: './.env' });
 
 // Examples repo: https://github.com/feathers-studio/telegraf-docs/blob/master/examples/live-location-bot.ts.
 export const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN!);
-export const telegram = new Telegram(process.env.TELEGRAM_BOT_TOKEN!);
 
-const welcomeMessage = "☀️ Hi, this bot can help you post and view local community ads.";
+const welcomeMessage = `☀️ Hi, this bot can help you post and view local community ads of ${process.env.COMMUNITY_LABEL}.`;
 
-bot.start((ctx) => {
-    let chatId = ctx.message.chat.id;
-    console.log(ctx.from, "\nchat id", chatId);
-    // ctx.reply(welcomeMessage, mainKeyboard);
+bot.start(async (ctx) => {
     ctx.replyWithPhoto({ source: "./assets/apartment_pic.png" }, { caption: welcomeMessage })
-        .then(() => ctx.reply("Please choose an option from the menu below ⬇️", mainKeyboard));
+    .then(() => ctx.reply("Please choose an option from the menu below ⬇️", mainKeyboard));
+    
+    const chatId = ctx.message.chat.id;
+    console.log(ctx.from, "\nchat id", chatId);
+    const register = await registerUser(ctx.from.username!, chatId);
+
     // TODO: to send regular messages to the user, check out node-cron package..
     // setInterval(() => {
     //     telegram.sendMessage(chatId, "hello");
     // }, 10000);
-    // TODO: solution for chatid and sending saved messages => 
-    // registration, db record with username and chatid.
 });
 
 // Registering username checking middleware.
@@ -180,18 +179,18 @@ const postAdWizard = new Scenes.WizardScene(
         try {
             if (ctx.callbackQuery.data === "Title") {
                 ctx.wizard.state.adData.toChange = "title";
-                ctx.reply("Enter new title", discardKeyboard);
+                ctx.reply(`Enter new title, current title: \n ${ctx.wizard.adData.title}`, discardKeyboard);
                 return ctx.wizard.next();
             } else if (ctx.callbackQuery.data === "Category") {
                 ctx.wizard.state.adData.toChange = "category";
-                ctx.reply("Select new category", categoryKeyboard);
+                ctx.reply(`Select new category, current category: \n${ctx.wizard.adData.category}`, categoryKeyboard);
                 return ctx.wizard.next();
             } else if (ctx.callbackQuery.data === "Description") {
-                ctx.reply("Enter new description", discardKeyboard);
+                ctx.reply(`Enter new description, current description: \n${ctx.wizard.adData.description}`, discardKeyboard);
                 ctx.wizard.state.adData.toChange = "description";
                 return ctx.wizard.next();
             } else if (ctx.callbackQuery.data === "Price") {
-                ctx.reply("Enter new price", discardKeyboard);
+                ctx.reply(`Enter new price, current price: \n${ctx.wizard.adData.price}`, discardKeyboard);
                 ctx.wizard.state.adData.toChange = "price";
                 return ctx.wizard.next();
             } else if (ctx.callbackQuery.data === "Photo") {

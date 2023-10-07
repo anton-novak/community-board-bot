@@ -4,15 +4,16 @@ import { useState, useEffect } from "react";
 import ItemModal from "./ItemModal";
 // https://loading.io/
 import spinner from "../assets/spinner.gif";
+import placeholder from "../assets/no_photo_128.png";
 
 type CardProps = {
     adData: Ad;
     office?: boolean;
-    deleteAdInMemory?: (_id: string) => void;
-
+    deleteAdInMemory: (_id: string) => void;
+    setNotify: (value: boolean) => void;
 }
 
-export default function ItemCard({ adData, office, deleteAdInMemory }: CardProps) {
+export default function ItemCard({ adData, office, deleteAdInMemory, setNotify }: CardProps) {
     const [pic, setPic] = useState<string | undefined>(undefined);
     const [showModal, setShowModal] = useState<boolean>(false);
 
@@ -20,6 +21,10 @@ export default function ItemCard({ adData, office, deleteAdInMemory }: CardProps
         console.log("triggered");
         setShowModal(!showModal);
     }
+
+    const shadowStyle = {
+        boxShadow: "0 0.5em 1em -0.125em rgba(10,10,10,.1), 0 0 0 1px rgba(10,10,10,.02)"
+    };
 
     // TODO: placeholder pic for no pic ads here and in modal.
 
@@ -35,6 +40,8 @@ export default function ItemCard({ adData, office, deleteAdInMemory }: CardProps
                         setPic(objectURL);
                     }
                 })
+        } else {
+            setPic(placeholder);
         }
     }, [adData.photos])
 
@@ -47,12 +54,12 @@ export default function ItemCard({ adData, office, deleteAdInMemory }: CardProps
                 }}
             >
                 <div className="media">
-                    <figure className="image is-128x128 media-left m-1
+                    <figure className="image is-128x128 media-left m-2
                 is-flex is-flex-direction-column is-justify-content-center">
                         {
                             pic ?
-                                <img src={pic} alt="Ad pic" />
-                                : <img src={spinner} alt="Loading spinner" />
+                                <img src={pic} alt="Ad pic" style={shadowStyle}/>
+                                : <img src={spinner} alt="Loading spinner" style={shadowStyle}/>
                         }
                     </figure>
                     <div className="media-content">
@@ -78,7 +85,10 @@ export default function ItemCard({ adData, office, deleteAdInMemory }: CardProps
                                 onClick={(e) => {
                                     deleteAd(adData._id)
                                         .then((res) => {
-                                            if (res.status !== 404) deleteAdInMemory!(adData._id);
+                                            if (res.status !== 404) { 
+                                                setNotify(true);
+                                                deleteAdInMemory(adData._id);
+                                            }
                                         })
                                 }}
                             >Delete</button>

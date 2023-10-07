@@ -38,7 +38,8 @@ export default function AdBrowser() {
         style={{
           position: "fixed",
           bottom: "1em",
-          left: "1em"
+          left: "50%",
+          transform: "translateX(-50%)",
         }}
         onClick={() => {
           window.scrollTo({top: 0, behavior: "smooth"});

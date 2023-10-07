@@ -1,4 +1,4 @@
-import { ads } from './db';
+import { ads, users } from './db';
 import { Ad } from './customTypes';
 
 export async function postAd(ad: Ad) {
@@ -33,4 +33,18 @@ export async function deleteAd(_id: string) {
     const ad = await getAd(_id);
     const response = await ads.destroy(ad._id, ad._rev);
     return response;
+}
+
+export async function registerUser(username: string, chatId: number) {
+    if (!await users.get(username)) {
+        const response = await users.insert({ _id: username, chatId: chatId });
+        return response;
+    } else {
+        console.log("A returning user");
+    }
+}
+
+export async function getChatId(username: string) {
+    const user = await users.get(username);
+    return user.chatId;
 }

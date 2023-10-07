@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Ad } from '../customTypes';
 import ItemCard from './ItemCard';
+import Notification from './Notification';
 import fetchAllAds, { fetchUserAds, getUsername } from '../services';
+import { clear } from 'console';
 
 type ItemContainerProps = {
     sortBy: string;
@@ -12,6 +14,7 @@ type ItemContainerProps = {
 export default function ItemContainer({ sortBy, category, office }: ItemContainerProps) {
     const [adsData, setAdsData] = useState<Ad[]>([]);
     const [page, setPage] = useState<number>(1);
+    const [notify, setNotify] = useState<boolean>(false);
 
     const itemsPerPage = 10;
 
@@ -31,7 +34,12 @@ export default function ItemContainer({ sortBy, category, office }: ItemContaine
         setAdsData(adsData.filter(ad => ad._id !== _id));
     }
 
+    const timeout = setTimeout(() => {
+        setNotify(false);
+    }, 2000);
+
     useEffect(() => {
+        clearTimeout(timeout);
         if (office) {
             fetchUserAds(getUsername(window.Telegram.WebApp.initData))
                 .then(data => setAdsData(data));
@@ -39,6 +47,7 @@ export default function ItemContainer({ sortBy, category, office }: ItemContaine
             fetchAllAds()
                 .then(data => setAdsData(data));
         }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -57,7 +66,7 @@ export default function ItemContainer({ sortBy, category, office }: ItemContaine
                     .map((ad: Ad) => {
                         return (
                             <ItemCard key={ad._id} adData={ad} office={office} 
-                            deleteAdInMemory={deleteAdInMemory} />
+                            deleteAdInMemory={deleteAdInMemory} setNotify={setNotify} />
                         )
                     })
             }
@@ -71,6 +80,9 @@ export default function ItemContainer({ sortBy, category, office }: ItemContaine
                 filteredAds.length === 0 ?
                     <p className="subtitle has-text-centered">No ads found</p> :
                     null
+            }
+            {
+                notify ? <Notification notification="Ad deleted" /> : null
             }
         </section>
     )

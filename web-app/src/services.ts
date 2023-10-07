@@ -30,15 +30,6 @@ export async function fetchTelegramPic(file_id: string) {
     }
 }
 
-export async function sendAdToUser(_id: string) {
-    try {
-        const response = await fetch(`${serverUrl}/save/${window.Telegram.WebApp.initData}/${_id}`);
-        return response;
-    } catch (error) {
-        console.error(error);
-    }
-}
-
 export async function fetchUserAds(username: string) {
     try {
         const response = await fetch(`${serverUrl}/ads/${window.Telegram.WebApp.initData}/${username}`);
@@ -57,4 +48,15 @@ export function getUsername(initData: string) {
 export function deleteAd(_id: string) {
     return fetch(`${serverUrl}/ads/${window.Telegram.WebApp.initData}/${_id}`,
         { method: 'DELETE' });
+}
+
+export function sendAdToUser(_id: string) {
+    return fetch(`${serverUrl}/save/${window.Telegram.WebApp.initData}`,
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ _id: _id })
+        });
 }

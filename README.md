@@ -2,12 +2,13 @@
 <p align="center">
 <img src="./for_readme/apartment_pic.png" />
 </p>
-Community Board bot is a Telegram bot with a mini-app that provides a convenient way to post and view ads for a local community: residents of an apartment block, employees of an office or any other. WIP.
+
+Community Board bot is a Telegram bot with a mini-app that provides a convenient way to post and view ads for a local community, like residents of an apartment block or employees of an office.
 
 # Motivation
-There are many C2C ad sites out there (like eBay), but they can be an overkill. Sometimes it is easier for people to reach out to their local community when they want to give away or sell something. There's usually a certain level of trust between members of a community. Inspection, delivery and payment are much more convenient to arrange which makes the process faster for the seller. For that reason the poster is also more likely to give away or sell items that would otherwise end up in a dump. Finally, posting ads locally simply allows people to connect with their neighbours or co-workers.
+There are many C2C ad sites out there (like eBay), but they can be an overkill. Sometimes it is easier for people to reach out to the local community when they want to give away or sell something. There's usually a certain level of trust in the community. Inspection, delivery and payment are easier to arrange which makes the process faster for the poster. For that reason the poster is also more likely to give away or sell items that would otherwise end up in garbage. Finally, posting ads locally simply allows people to connect with their neighbours or co-workers.
 
-Often people community chats as ad boards, but there disadvantages to that: the ads get lost in the stream of messages, there are limited ways to track them, and chat members can disapprove of that. There may be no chat at all, or some people do not wish to be part of it because of the toxicity. The Community Board bot solves these problems by providing a dedicated place for the ads while keeping it local.
+Often people use community chats as ad boards, but there are disadvantages to that: the ads get lost in the stream of messages, there are limited ways to track them, and chat members can disapprove of that. There may be no chat at all, or some people may not be members of it because of the toxicity (that happens a lot!). The Community Board bot solves these problems by providing a dedicated mini-app for the ads while keeping it local.
 
 # Features
 * Complete in-bot ad posting process with editing, validation and error handling.
@@ -16,10 +17,6 @@ Often people community chats as ad boards, but there disadvantages to that: the 
 * Username check aimed to ensure the users' ability to connect with each other.
 * Telegram-based image handling which keeps bot server space at the minimum.
 * Telegram-based authentication - the mini-app is not accessible from outside the bot.
-
-# Challenges & roadmap
-
-...
 
 # Getting started
 
@@ -44,10 +41,11 @@ COUCH_DB_PASSWORD="<couch_db_password>"
 COUCH_DB_IP_PORT="127.0.0.1:9876"
 COUCH_DB_PROTOCOL="http"
 TELEGRAM_FILE_URL="https://api.telegram.org/file/bot"
+COMMUNITY_LABEL="Banlieue 13"
 ```
 Point your front-end services to the back end by editing the first line of `services` file in `/web-app/src` directory.
 
-Then navigate to `/server/src` directory and start the server with `ts-node index.ts` command in your OS terminal. To start the front-end server run `($env:HTTPS = "true") -and (npm start)` from `/web-app` directory in Windows PowerShell or `HTTPS=true npm start`in a UNIX OS terminal (Create React App [docs page](https://create-react-app.dev/docs/using-https-in-development) on that).
+Then navigate to `/server/src` directory and start the server with `ts-node index.ts` command in your OS terminal. To start the front-end server run `($env:HTTPS = "true") -and (npm start)` from `/web-app` directory in Windows PowerShell or `HTTPS=true npm start` in a UNIX OS terminal (Create React App [docs page](https://create-react-app.dev/docs/using-https-in-development) on that).
 
 Now you are good to go, just `/start` a conversation with the bot in Telegram. In development mode you will see a browser warning when opening the mini-app about not using a proper HTTPS certificate - just click through it.
 
@@ -55,24 +53,47 @@ Now you are good to go, just `/start` a conversation with the bot in Telegram. I
 
 ## Back end
 
-The back end is following the MVC model where there's a database layer at the back that talks to CouchDB (`db` and `model` files) and a RESTful API with controllers that react to specific requests and manupulate the model (`router` and `controllers` files). Some of the controllers work with Telegram API as a data layer. Bot-related code is mostly standalone (`bot` file).
+The back end is following the MVC pattern with a database layer in the back that talks to CouchDB (`db` and `model` files) and a RESTful API with controllers that react to specific HTTP requests and manupulate the data model (`router` and `controllers` files). Some of the controllers work with Telegram API as a data layer. 
+
+Bot-related code is mostly standalone (`bot` file). Bot uses some methods exported by the database layer to interact with the database.
+
+There are two databases in total that are created automatically: databases with ads and users (the latter for keeping track of chat IDs). Look in the `customTypes` file to see the "schema" for the ads database.
+
+**Server architecture**
+```
+Server
+    router → middleware → controllers → database || Telegram API
+    bot → database
+```
 
 ## Front end
 
-### Ads browsing view
+There are two main destinations in the mini-app handled by `react-router-DOM`: the ad browsing view `<AdBrowser/>` and the ad managing view `<Office/>`. Both of these pages re-use the same components that use conditional logic to enable or disable features.
 
-There are two main destinations in the mini-app dispatched by `react-router-DOM`: the ad browsing view `<AdBrowser/>` and the ad managing view `<Office/>`. Both of these pages use the same components that use conditional logic to enable or disable features.
-
-Component tree with notes on key states:
+**React component tree with key states**
 ```
 App: routes
-    AdBrowser | Office: category and sorting values generated by NavBar
+    AdBrowser || Office: category and sorting values generated by NavBar
         NavBar
         ItemContainer: ads data
             ItemCard: thumbnail image
+                Notification
             ItemModal: larger image
+                Notification
 ```
-`services` file containes functions that query the back end and helper functions.
+`services` file contains functions that query the back end and helper functions.
+
+There are no `.css` files for pages and components, but for a `.css` file for animating `<Notification/>`. Styling is done inline using Bulma stylesheet classes or `style` objects for fine-tuning.
+
+# Challenges & roadmap
+
+* We have not found a way to capture `file_id` of multiple photos sent by a user as a media group - only `file_id` of the last photo is available. It seems to be a [requested feature](https://github.com/python-telegram-bot/python-telegram-bot/wiki/Frequently-requested-design-patterns#how-do-i-deal-with-a-media-group) for the Bot API, so either we wait for the implementation or come up with a workaround.
+* Getting into bot development proved harder than we imagined because of the style of documenting the libraries and the APIs. Thankfully, some answers were found in community discussions, in particular this [post](https://github.com/telegraf/telegraf/issues/705#issuecomment-549056045) by Ivan Malyugin on using `Scene` and `WizardScene` was most helpful.
+* Potential additional features:
+    * Geolocation-based registration process for keeping things truly local.
+    * In-web-app editing of ads.
+    * Regular bot reminders on new ads based on user preferences regarding categories.
+    * More styles and animations.
 
 # Tech stack
 
@@ -84,3 +105,6 @@ TypeScript, Node.js with [Express.js](http://expressjs.com/), [Telegraf](https:/
 ### Front end
 TypeScript, React with [create-react-app](https://create-react-app.dev/) setup and [react-router-DOM](https://reactrouter.com/en/main/start/overview) for client-side routing, [Bulma CSS](https://bulma.io/) styles.
 
+# Authors
+
+Anton & Alexander Novak, for 22 September 2023 Telegram Mini-App Contest submission.

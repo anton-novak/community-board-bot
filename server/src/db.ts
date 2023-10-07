@@ -7,7 +7,12 @@ nano.db.create('ads')
     .then(() => console.log("Database with ads created"))
     .catch(() => console.log("Database with ads already exists"));
 
+nano.db.create('users')
+    .then(() => console.log("Database with users created"))
+    .catch(() => console.log("Database with users already exists"));
+
 export const ads = nano.use('ads');
+export const users = nano.use('users');
 
 const dblist = nano.db.list()
-    .then((list: string[]) => console.log(list));
+    .then((list: string[]) => console.log("CouchDB databases:", list));

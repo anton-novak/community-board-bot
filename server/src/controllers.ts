@@ -1,7 +1,10 @@
-import { getAllAds, getAd, getUserAds, deleteAd } from './model';
+import { getAllAds, getAd, getUserAds, deleteAd, getChatId } from './model';
 import { Request, Response } from 'express';
-import { bot, telegram } from './bot';
+import { Telegram } from 'telegraf';
 import fetch from 'node-fetch';
+import { Ad } from './customTypes';
+
+export const telegram = new Telegram(process.env.TELEGRAM_BOT_TOKEN!);
 
 export async function getAllAdsController (req: Request, res: Response) {
     try {
@@ -61,16 +64,29 @@ export async function deleteAdController (req: Request, res: Response) {
     }
 }
 
-// async function saveAd (req: Request, res: Response) {
-//     try {
-//         console.log(req.params._id);
-//         const adData = await getAd(req.params._id);
-//         telegram.sendMessage(chatId, "hello");
-//         res.status(200);
-//         res.send("Cool")
-//     } catch (error) {
-//         console.log(error);
-//         res.status(404);
-//         res.send("Failed to fetch the pic")
-//     }
-// }
+export async function saveAdController (req: Request, res: Response) {
+    try {
+        const chatId = await getChatId(req.app.locals.user);
+        const ad = await getAd(req.body._id);
+        if (ad.photos.length > 0) {
+            telegram.sendPhoto(chatId, ad.photos[0].file_id, { caption: messageConstructor(ad) });
+        } else {
+            telegram.sendMessage(chatId, messageConstructor(ad));
+        }
+        res.status(200);
+        res.send("Ad send to the chat");
+    } catch (error) {
+        console.log(error);
+        res.status(404);
+        res.send("Failed to save the ad");
+    }
+}
+
+function messageConstructor (ad: Ad) {
+    return `
+    ${ad.title}
+    \n${ad.description}
+    \n${ad.price}
+    \nContact @${ad.username}
+    `;
+}
