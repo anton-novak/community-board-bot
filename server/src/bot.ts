@@ -12,17 +12,13 @@ const mainKeyboard = Markup.keyboard([
     ["Post an ad"],
     ["Browse community ads"],
     ["View and edit my ads"],
-    // If a webapp is initialized from basic keyboard
-    // it does not receive user info on init.
-    // [webAppButton]
 ]);
 
 const miniAppKeyboard = Markup.inlineKeyboard([
     [webAppButton]
 ]);
 
-
-const welcomeMessage = "☀️ Hi, this bot can help you post and view local community ads. Please choose an option from the menu below.";
+const welcomeMessage = "☀️ Hi, this bot can help you post and view local community ads.";
 
 const discardKeyboard = Markup.keyboard([
     ["Discard this ad"]
@@ -31,8 +27,11 @@ const discardKeyboard = Markup.keyboard([
 bot.start((ctx) => {
     let chatId = ctx.message.chat.id;
     console.log(ctx.from, "\nchat id", chatId);
-    ctx.reply(welcomeMessage, mainKeyboard);
+    // ctx.reply(welcomeMessage, mainKeyboard);
+    ctx.replyWithPhoto({ source: "./assets/apartment_pic.png" }, { caption: welcomeMessage })
+        .then(() => ctx.reply("Please choose an option from the menu below ⬇️", mainKeyboard));
 });
+
 
 // Registering username checking middleware.
 bot.use((ctx, next) => {
@@ -154,7 +153,7 @@ const postAdWizard = new Scenes.WizardScene(
         if (ctx.callbackQuery && ctx.callbackQuery.data === "noPhoto") {
             null;
         } else if (!ctx.message.photo) {
-            ctx.reply("Please attach a photo to your ad", Markup.inlineKeyboard([Markup.button.callback("❌ No photo for this ad", "noPhoto")]), discardKeyboard);
+            ctx.reply("📷 Please attach a photo to your ad", Markup.inlineKeyboard([Markup.button.callback("❌ No photo for this ad", "noPhoto")]), discardKeyboard);
             return;
         } else {
             ctx.wizard.state.adData.photos = ctx.message.photo;
@@ -164,25 +163,31 @@ const postAdWizard = new Scenes.WizardScene(
     },
     (ctx) => {
         // Review step No. 6.
-        if (ctx.wizard.state.adData.photos.length > 0) {
-            ctx.replyWithPhoto(ctx.wizard.state.adData.photos[0].file_id);
-        }
-        ctx.replyWithHTML(`
+        const html = `
         <b>${ctx.wizard.state.adData.title}</b>
         \n<i>${ctx.wizard.state.adData.category}</i>
         \n${ctx.wizard.state.adData.description}
         \n${ctx.wizard.state.adData.price}
         \nContact @${ctx.from.username}
-        `);
-        ctx.reply("Is this correct?", Markup.inlineKeyboard([
-            [
-                Markup.button.callback("✅ Yes", "yes"),
-                Markup.button.callback("❌ No", "no")
-            ],
-            [
-                Markup.button.callback("🗑️ Discard this ad", "discard")
-            ]
-        ]));
+        `;
+        (() => {
+            if (ctx.wizard.state.adData.photos.length > 0) {
+                return ctx.replyWithPhoto(ctx.wizard.state.adData.photos[0].file_id, { caption: html.replace(/<\/?.>/g, "") });
+            } else {
+                return ctx.replyWithHTML(html);
+            }
+        })()
+            .then(() => {
+                ctx.reply("Is this correct?", Markup.inlineKeyboard([
+                    [
+                        Markup.button.callback("✅ Yes", "yes"),
+                        Markup.button.callback("❌ No", "no")
+                    ],
+                    [
+                        Markup.button.callback("🗑️ Discard this ad", "discard")
+                    ]
+                ]));
+            });
         return ctx.wizard.next();
     },
     async (ctx) => {
