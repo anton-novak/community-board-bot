@@ -2,14 +2,17 @@
 type NavBarProps = {
     sortingSelectHandler: (event: React.ChangeEvent<HTMLSelectElement>) => void;
     categoriesSelectHandler: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+    office?: boolean;
 }
 
-export default function NavBar({ sortingSelectHandler, categoriesSelectHandler }: NavBarProps) {
+export default function NavBar({ sortingSelectHandler, categoriesSelectHandler, office }: NavBarProps) {
 
     return (
-        <nav className="navbar is-success p-1 level mb-0">
+        <nav className={`navbar p-1 level mb-0 ${office ? "is-info" : "is-primary"}`}>
             <div className="navbar-start">
-                <p className="subtitle has-text-centered has-text-white">Community board</p>
+                <p className="subtitle has-text-centered has-text-white">
+                    {office ? "Manage your ads" : "Community board"}
+                </p>
             </div>
             <div className="select m-2 is-flex is-flex-direction-row is-justify-content-space-between">
                 <label htmlFor="sorting" className="m-2"

@@ -2,12 +2,8 @@ import crypto from "crypto";
 import { Request, Response, NextFunction } from "express";
 
 type InitData = {
-    id: string;
-    first_name: string;
-    last_name: string;
-    username: string;
-    language_code: string;
-    allows_write_to_pm: string;
+    query_id: string;
+    user: string;
     auth_date: string;
     hash: string;
 }
@@ -49,4 +45,10 @@ export default async function validateTelegramHash(req: Request, res: Response, 
         res.status(401);
         res.send("Unauthorized request");
     }
+}
+
+export async function establishUser (req: Request, res: Response, next: NextFunction) {
+    const user = JSON.parse(transformInitData(req.params.checkString).user).username;
+    req.app.locals.user = user;
+    next();
 }

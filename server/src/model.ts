@@ -18,3 +18,19 @@ export async function getAd(_id: string) {
     const ad = await ads.get(_id);
     return ad;
 }
+
+export async function getUserAds(username: string) {
+    // Mango query
+    const docs = await ads.find({
+        selector: {
+            username: username
+        }
+    });
+    return docs.docs;
+}
+
+export async function deleteAd(_id: string) {
+    const ad = await getAd(_id);
+    const response = await ads.destroy(ad._id, ad._rev);
+    return response;
+}

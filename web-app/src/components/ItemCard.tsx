@@ -1,15 +1,18 @@
 import { Ad } from "../customTypes"
-import { fetchTelegramPic } from "../services";
+import { deleteAd, fetchTelegramPic } from "../services";
 import { useState, useEffect } from "react";
 import ItemModal from "./ItemModal";
 // https://loading.io/
 import spinner from "../assets/spinner.gif";
 
 type CardProps = {
-    adData: Ad
+    adData: Ad;
+    office?: boolean;
+    deleteAdInMemory?: (_id: string) => void;
+
 }
 
-export default function ItemCard({ adData }: CardProps) {
+export default function ItemCard({ adData, office, deleteAdInMemory }: CardProps) {
     const [pic, setPic] = useState<string | undefined>(undefined);
     const [showModal, setShowModal] = useState<boolean>(false);
 
@@ -65,9 +68,23 @@ export default function ItemCard({ adData }: CardProps) {
                         </div>
                     </div>
                 </div>
-                <p className="subtitle is-size-7 m-2 has-text-centered">
-                    By <a href={`https://t.me/${adData.username}`}>{adData.username}</a> at {new Date(adData.timestamp).toDateString()}
-                </p>
+                <div className="is-flex is-flex-direction-row is-justify-content-space-between is-align-content-center m-2">
+                    <p className="subtitle is-size-7 m-2 has-text-centered">
+                        By <a href={`https://t.me/${adData.username}`}>{adData.username}</a> at {new Date(adData.timestamp).toDateString()}
+                    </p>
+                    {
+                        office ?
+                            <button className="button is-danger is-small"
+                                onClick={(e) => {
+                                    deleteAd(adData._id)
+                                        .then((res) => {
+                                            if (res.status !== 404) deleteAdInMemory!(adData._id);
+                                        })
+                                }}
+                            >Delete</button>
+                            : null
+                    }
+                </div>
             </div>
             {
                 showModal ?

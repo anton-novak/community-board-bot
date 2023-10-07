@@ -38,3 +38,23 @@ export async function sendAdToUser(_id: string) {
         console.error(error);
     }
 }
+
+export async function fetchUserAds(username: string) {
+    try {
+        const response = await fetch(`${serverUrl}/ads/${window.Telegram.WebApp.initData}/${username}`);
+        const ads = await response.json();
+        return ads;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export function getUsername(initData: string) {
+    const obj = Object.fromEntries(new URLSearchParams(initData));
+    return JSON.parse(obj.user).username;
+}
+
+export function deleteAd(_id: string) {
+    return fetch(`${serverUrl}/ads/${window.Telegram.WebApp.initData}/${_id}`,
+        { method: 'DELETE' });
+}

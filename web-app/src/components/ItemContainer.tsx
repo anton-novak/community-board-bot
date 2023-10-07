@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Ad } from '../customTypes';
 import ItemCard from './ItemCard';
-import fetchAllAds from '../services';
+import fetchAllAds, { fetchUserAds, getUsername } from '../services';
 
 type ItemContainerProps = {
     sortBy: string;
     category: string;
+    office?: boolean;
 }
 
-export default function ItemContainer({ sortBy, category }: ItemContainerProps) {
+export default function ItemContainer({ sortBy, category, office }: ItemContainerProps) {
     const [adsData, setAdsData] = useState<Ad[]>([]);
     const [page, setPage] = useState<number>(1);
 
@@ -26,9 +27,19 @@ export default function ItemContainer({ sortBy, category }: ItemContainerProps) 
             }
         });
 
+    function deleteAdInMemory(_id: string) {
+        setAdsData(adsData.filter(ad => ad._id !== _id));
+    }
+
     useEffect(() => {
-        fetchAllAds()
-            .then(data => setAdsData(data));
+        if (office) {
+            fetchUserAds(getUsername(window.Telegram.WebApp.initData))
+                .then(data => setAdsData(data));
+        } else {
+            fetchAllAds()
+                .then(data => setAdsData(data));
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (
@@ -45,7 +56,8 @@ export default function ItemContainer({ sortBy, category }: ItemContainerProps) 
                     .slice(0, itemsPerPage * page)
                     .map((ad: Ad) => {
                         return (
-                            <ItemCard key={ad._id} adData={ad} />
+                            <ItemCard key={ad._id} adData={ad} office={office} 
+                            deleteAdInMemory={deleteAdInMemory} />
                         )
                     })
             }

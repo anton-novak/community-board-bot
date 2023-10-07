@@ -1,29 +1,24 @@
 import { Telegraf, Markup, Scenes, session, Telegram } from 'telegraf';
 import dotenv from 'dotenv';
 import { postAd } from './model';
+import {
+    mainKeyboard,
+    miniAppKeyboard,
+    discardKeyboard,
+    categoryKeyboard,
+    editKeyboard,
+    reviewKeyboard,
+    photoKeyboard,
+    jumpReviewKeyboard,
+    miniAppOfficeKeyboard
+} from './botKeyboards';
 dotenv.config({ path: './.env' });
 
 // Examples repo: https://github.com/feathers-studio/telegraf-docs/blob/master/examples/live-location-bot.ts.
 export const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN!);
 export const telegram = new Telegram(process.env.TELEGRAM_BOT_TOKEN!);
-// localhost is detected by Telegraf as invalid url, use 127.0.0.1 for development.
-const webAppButton = Markup.button.webApp("Open web", process.env.WEB_APP_URL!);
-
-const mainKeyboard = Markup.keyboard([
-    ["Post an ad"],
-    ["Browse community ads"],
-    ["View and edit my ads"],
-]).resize();
-
-const miniAppKeyboard = Markup.inlineKeyboard([
-    [webAppButton]
-]);
 
 const welcomeMessage = "☀️ Hi, this bot can help you post and view local community ads.";
-
-const discardKeyboard = Markup.keyboard([
-    ["Discard this ad"]
-]).resize();
 
 bot.start((ctx) => {
     let chatId = ctx.message.chat.id;
@@ -39,7 +34,6 @@ bot.start((ctx) => {
     // registration, db record with username and chatid.
 });
 
-
 // Registering username checking middleware.
 bot.use((ctx, next) => {
     if (ctx.from && !ctx.from.username) {
@@ -49,44 +43,15 @@ bot.use((ctx, next) => {
     next();
 });
 
+bot.use(session());
+
 bot.hears("Browse community ads", (ctx) => {
     ctx.reply("Open community board", miniAppKeyboard);
 });
 
-const editKeyboard = Markup.inlineKeyboard([
-    [
-        Markup.button.callback("Title", "Title"),
-        Markup.button.callback("Category", "Category"),
-        Markup.button.callback("Description", "Description")
-    ],
-    [
-        Markup.button.callback("Price", "Price"),
-        Markup.button.callback("Photo", "Photo")
-    ],
-    [
-        Markup.button.callback("🗑️ Discard this ad", "Discard this ad")
-    ]
-]);
-
-const categoryKeyboard = Markup.inlineKeyboard([
-    [
-        Markup.button.callback("📺 Electronics & appliances", "Electronics & appliances"),
-        Markup.button.callback("👗 Clothes & accessories", "Clothes & accessories")
-    ],
-    [
-        Markup.button.callback("🦸 Help & services", "Help & services"),
-        Markup.button.callback("⚒️ Building materials & DIY", "Building materials & DIY")
-    ],
-    [
-        Markup.button.callback("🚗 Cars, bikes & parts", "Cars, bikes & parts"),
-        Markup.button.callback("💅 Beauty & health", "Beauty & health")
-    ],
-    [
-        Markup.button.callback("🤔 Other", "Other"),
-    ]
-]);
-
-bot.use(session());
+bot.hears("Manage my ads", (ctx) => {
+    ctx.reply("Open my ads", miniAppOfficeKeyboard);
+});
 
 // https://github.com/telegraf/telegraf/issues/705#issuecomment-549056045
 const postAdWizard = new Scenes.WizardScene(
@@ -149,8 +114,7 @@ const postAdWizard = new Scenes.WizardScene(
             return;
         }
         ctx.wizard.state.adData.price = ctx.message.text;
-        ctx.reply("📷 Attach a photo to your ad",
-            Markup.inlineKeyboard([Markup.button.callback("❌ No photo for this ad", "noPhoto")]), discardKeyboard);
+        ctx.reply("📷 Attach a photo to your ad", photoKeyboard, discardKeyboard);
         ctx.wizard.state.adData.photos = [];
         return ctx.wizard.next();
         // Bot API has a design flaw for media groups: you can't get all file references from a media group sent by a user.
@@ -160,12 +124,12 @@ const postAdWizard = new Scenes.WizardScene(
         if (ctx.callbackQuery && ctx.callbackQuery.data === "noPhoto") {
             null;
         } else if (!ctx.message.photo) {
-            ctx.reply("Please attach a photo to your ad", Markup.inlineKeyboard([Markup.button.callback("❌ No photo for this ad", "noPhoto")]), discardKeyboard);
+            ctx.reply("Please attach a photo to your ad", photoKeyboard, discardKeyboard);
             return;
         } else {
             ctx.wizard.state.adData.photos = ctx.message.photo;
         }
-        ctx.reply("🔍 That's it, please review your ad", Markup.inlineKeyboard([Markup.button.callback("Review", "Review")]), discardKeyboard);
+        ctx.reply("🔍 That's it, please review your ad", jumpReviewKeyboard, discardKeyboard);
         return ctx.wizard.next();
     },
     (ctx) => {
@@ -185,15 +149,7 @@ const postAdWizard = new Scenes.WizardScene(
             }
         })()
             .then(() => {
-                ctx.reply("Is this correct?", Markup.inlineKeyboard([
-                    [
-                        Markup.button.callback("✅ Yes", "yes"),
-                        Markup.button.callback("❌ No", "no")
-                    ],
-                    [
-                        Markup.button.callback("🗑️ Discard this ad", "discard")
-                    ]
-                ]));
+                ctx.reply("Is this correct?", reviewKeyboard);
             });
         return ctx.wizard.next();
     },
@@ -239,7 +195,7 @@ const postAdWizard = new Scenes.WizardScene(
                 ctx.wizard.state.adData.toChange = "price";
                 return ctx.wizard.next();
             } else if (ctx.callbackQuery.data === "Photo") {
-                ctx.reply("Attach a new photo", Markup.inlineKeyboard([Markup.button.callback("❌ No photo for this ad", "noPhoto")]), discardKeyboard);
+                ctx.reply("Attach a new photo", photoKeyboard, discardKeyboard);
                 ctx.wizard.state.adData.toChange = "photo";
                 return ctx.wizard.next();
             } else if (ctx.callbackQuery.data === "Discard this ad") {
@@ -280,13 +236,13 @@ const postAdWizard = new Scenes.WizardScene(
             if (ctx.callbackQuery && ctx.callbackQuery.data === "noPhoto") {
                 ctx.wizard.state.adData.photos = [];
             } else if (!ctx.message.photo) {
-                ctx.reply("Please attach a photo to your ad", Markup.inlineKeyboard([Markup.button.callback("❌ No photo for this ad", "noPhoto")]), discardKeyboard);
+                ctx.reply("Please attach a photo to your ad", photoKeyboard, discardKeyboard);
                 return;
             } else {
                 ctx.wizard.state.adData.photos = ctx.message.photo;
             }
         }
-        ctx.reply("✅ Changes saved, please review your ad", Markup.inlineKeyboard([Markup.button.callback("Review", "Review")]), discardKeyboard);
+        ctx.reply("✅ Changes saved, please review your ad", jumpReviewKeyboard, discardKeyboard);
         return ctx.wizard.selectStep(6);
     }
 );

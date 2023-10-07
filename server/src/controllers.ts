@@ -1,4 +1,4 @@
-import { getAllAds, getAd } from './model';
+import { getAllAds, getAd, getUserAds, deleteAd } from './model';
 import { Request, Response } from 'express';
 import { bot, telegram } from './bot';
 import fetch from 'node-fetch';
@@ -32,6 +32,32 @@ export async function getTelegramPic (req: Request, res: Response) {
         console.log(error);
         res.status(404);
         res.send("Failed to fetch the pic")
+    }
+}
+
+export async function getUserAdsController (req: Request, res: Response) {
+    try {
+        const ads = await getUserAds(req.params.username);
+        res.status(200);
+        res.send(ads);
+    } catch (error) {
+        console.log(error);
+        res.status(404);
+        res.send("Failed to fetch ads")
+    }
+}
+
+export async function deleteAdController (req: Request, res: Response) {
+    try {
+        const tbdAd = await getAd(req.params._id);
+        if (req.app.locals.user !== tbdAd.username) throw new Error("Unauthorized request");
+        const response = await deleteAd(req.params._id);
+        res.status(200);
+        res.send(response);
+    } catch (error) {
+        console.log(error);
+        res.status(404);
+        res.send("Failed to delete an ad")
     }
 }
 
