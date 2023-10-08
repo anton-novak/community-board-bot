@@ -12,7 +12,7 @@ Often people use community chats as ad boards, but there are disadvantages to th
 
 # Features
 * Complete in-bot ad posting process with editing, validation and error handling.
-* Easy-to-use and lightweight web app interface that allows to browse, filter, sort and manage the ads.
+* Easy-to-use and lightweight web interface that allows to browse, filter, sort and manage the ads.
 * Saving ads to the chat with the bot for keeping and forwarding to other users.
 * One-click transition to Telegram chats with the posters to initiate a conversation about the ads.
 * Username check aimed to ensure the users' ability to connect with each other.
@@ -21,20 +21,26 @@ Often people use community chats as ad boards, but there are disadvantages to th
 
 # Getting started
 
-To work with this code you must have a grasp of concepts and tools of modern web development, including HTML, CSS, JavaScript, TypeScript, Node.js, React framework, HTTP protocol, NoSQL databases.
+To work with this code you must have a grasp of concepts and tools of modern web development, including HTML, CSS, JavaScript, TypeScript, Node.js, React framework, HTTP protocol, NoSQL databases. Some knowledge of Telegram bot API will save a lot of time (although we knew nothing when we started).
 
 ### Starting the bot and the mini-app in development mode
+
+#### Setup
 
 Prerequisites:
 * Git & GitHub
 * Telegram bot token - pay a respectful visit to the [BotFather](https://t.me/BotFather)
-* [Node.js](https://nodejs.org/en) with `npm` package manager
-* [CouchDB](https://couchdb.apache.org/) - please follow the installation and setip instructions from the developers
-* TypeScript with `ts-node` (`npm i -g typescript` and `npm i -g ts-node` in your OS terminal)
+* [Node.js](https://nodejs.org/en) (version 18+) with `npm` package manager installed
+* [CouchDB](https://couchdb.apache.org/)
+    * Please follow the [installation](https://docs.couchdb.org/en/stable/install/index.html) and [setup](https://docs.couchdb.org/en/stable/setup/single-node.html) instructions from the developers
+    * The single-node setup is the easiest option and it only requires to create an admin account and bind the database to an IP address and port
+    * In a GUI environment with a browser you can complete the setup in Fauxton web interface (default URL: http://127.0.0.1:5984/_utils#setup)
+* TypeScript with `ts-node` (run `npm i -g typescript` and `npm i -g ts-node` in your OS terminal)
+    * If you get an execution policy error in PowerShell, start it with administrator priviliges and run `Set-ExecutionPolicy RemoteSigned` (by doing so you allow running unsigned scripts locally which should be fine as long as your are aware of what you are running and use trusted sources)
 
 Clone this repo into your local directory, navigate to both `server` and `web-app` directories in your OS terminal and run `npm i` to install back-end and front-end dependencies. 
 
-Create `.env` file in the `/server/src/` directory and populate it with environment variables:
+Create `.env` file (just a blank file named exactly `.env`) in the `/server/src/` directory and populate it with environment variables (**copy the list below into the file, read through it and change accordingly - some of the values are used as examples**):
 
 ```
 TELEGRAM_BOT_TOKEN="<bot_token>"
@@ -42,14 +48,20 @@ WEB_APP_URL="https://127.0.0.1:3000"
 SERVER_PORT=3456
 COUCH_DB_LOGIN="<couch_db_login>"
 COUCH_DB_PASSWORD="<couch_db_password>"
-COUCH_DB_IP_PORT="127.0.0.1:9876"
+COUCH_DB_IP_PORT="127.0.0.1:5984"
 COUCH_DB_PROTOCOL="http"
 TELEGRAM_FILE_URL="https://api.telegram.org/file/bot"
-COMMUNITY_LABEL="Banlieue 13"
+COMMUNITY_LABEL="<community_label>"
 ```
-Point your front-end services to the back end by editing the first line of `services` file in `/web-app/src` directory.
+Point your front-end services to the back end by editing the first line of `services` file in `/web-app/src` directory (by default the back end server will run at http://localhost:3456).
 
-Then navigate to `/server/src` directory and start the server with `ts-node index.ts` command in your OS terminal. To start the front-end server run `($env:HTTPS = "true") -and (npm start)` from `/web-app` directory in Windows PowerShell or `HTTPS=true npm start` in a UNIX OS terminal (Create React App [docs page](https://create-react-app.dev/docs/using-https-in-development) on that).
+#### Start-up
+
+To start both the back end and the front end you can use the pre-made start-up scripts. Navigate to the top directory of the repo in your OS terminal, run `npm i` to download `concurrently` package and run `npm run start:win32` on Windows or `npm run start:unix` on UNIX OS (*UNIX script not tested*). 
+
+If the script fails, or you want to run thing in separate terminals, you can do the following:
+* Navigate to `/server/src` directory and start the back end with `ts-node index.ts` command in your OS terminal. 
+* To start the front-end server run `($env:HTTPS = "true") -and (npm start)` from `/web-app` directory in Windows PowerShell or `HTTPS=true npm start` in a UNIX OS terminal (Create React App [docs page](https://create-react-app.dev/docs/using-https-in-development) on that).
 
 Now you are good to go, just `/start` a conversation with the bot in Telegram. In development mode you will see a browser warning when opening the mini-app about not using a proper HTTPS certificate - just click through it.
 
@@ -63,11 +75,20 @@ Bot-related code is mostly standalone (`bot` file). Bot uses some methods export
 
 There are two databases in total that are created automatically: databases with ads and users (the latter for keeping track of chat IDs). Look in the `customTypes` file to see the "schema" for the ads database.
 
-**Server architecture**
+**Back end architecture**
 ```
 Server
-    router → middleware → controllers → database || Telegram API
-    bot → database
+    router → middleware → controllers → model → database
+                                      → Telegram API
+    bot → model → database
+
+* router: RESTful API endpoints
+* middleware: user validation procedures
+* controllers: HTTP requests handlers
+* model: database querying procedures
+* database: database initialization
+* Telegram API: fetching photos and sending messages to users (code included with the controllers)
+* bot code mainly consists of a wizard that handles the posting and editing process
 ```
 
 ## Front end
@@ -89,15 +110,20 @@ App: routes
 
 There are no `.css` files for pages and components, but for `.css` files with keyframes for animations. Styling is done inline using Bulma stylesheet classes or `style` objects for fine-tuning.
 
+### A note on image handling
+
+A decision was made to rely on Telegram API and servers to handle images. The API exposes an endpoint that takes bot token as a URL parameter. Making an image request to that endpoint from the front-end can expose the token. To avoid that, the API request was pushed back to the back end which them serves the image to the front-end.
+
 # Challenges & roadmap
 
 * We have not found a way to capture `file_id` of multiple photos sent by a user as a media group - only `file_id` of the last photo is available. It seems to be a [requested feature](https://github.com/python-telegram-bot/python-telegram-bot/wiki/Frequently-requested-design-patterns#how-do-i-deal-with-a-media-group) for the Bot API, so either we wait for the implementation or come up with a workaround.
 * Getting into bot development proved harder than we imagined because of the style of documenting the libraries and the APIs. Thankfully, some answers were found in community discussions, in particular this [post](https://github.com/telegraf/telegraf/issues/705#issuecomment-549056045) by Ivan Malyugin on using `Scene` and `WizardScene` was most helpful.
 * Potential additional features:
-    * Geolocation-based registration process for keeping things truly local.
     * In-web-app editing of ads.
+    * Geolocation-based registration process for keeping things truly local.
     * Regular bot reminders on new ads based on user preferences regarding categories.
-    * More styles and animations.
+    * More styles and animations (e.g., dark mode).
+    * Infinite scroll (no manual pagination).
 
 # Tech stack
 

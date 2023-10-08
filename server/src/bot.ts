@@ -20,7 +20,10 @@ export const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN!);
 const welcomeMessage = `☀️ Hi, this bot can help you post and view local community ads of ${process.env.COMMUNITY_LABEL}.`;
 
 const commands = [
-    { command: "start", description: "Restarts the bot" }
+    { command: "start", description: "Restarts the bot" },
+    { command: "post", description: "Post a new ad" },
+    { command: "browse", description: "Browse community ads" },
+    { command: "manage", description: "Manage my ads" }
 ];
 
 bot.telegram.setMyCommands(commands);
@@ -33,7 +36,7 @@ bot.start(async (ctx) => {
     console.log(ctx.from, "\nchat id", chatId);
     const register = await registerUser(ctx.from.username!, chatId);
 
-    // TODO: to send regular messages to the user, check out node-cron package..
+    // TODO: send regular messages to the user, check out node-cron package.
     // setInterval(() => {
     //     telegram.sendMessage(chatId, "hello");
     // }, 10000);
@@ -50,14 +53,18 @@ bot.use((ctx, next) => {
 
 bot.use(session());
 
+// Commands and listeners for main actions, except for wizard.
 bot.hears("Browse community ads", (ctx) => {
     ctx.reply("Open community board", miniAppKeyboard);
 });
+bot.command("browse", (ctx: any) => ctx.reply("Open community board", miniAppKeyboard));
 
 bot.hears("Manage my ads", (ctx) => {
     ctx.reply("Open my ads", miniAppOfficeKeyboard);
 });
+bot.command("manage", (ctx: any) => ctx.reply("Open my ads", miniAppOfficeKeyboard));
 
+// Wizard section, including the wizard, command and listener.
 // https://github.com/telegraf/telegraf/issues/705#issuecomment-549056045
 const postAdWizard = new Scenes.WizardScene(
     'post_ad_wizard',
@@ -70,12 +77,12 @@ const postAdWizard = new Scenes.WizardScene(
     (ctx) => {
         try {
             if (ctx.message.text.length > 60) {
-                ctx.reply(`Please keep the title under 60 symbols, your input:\n
-                ${ctx.message.text}`, discardKeyboard);
+                ctx.replyWithHTML(`Please keep the title under 60 symbols, your input (tap to copy):\n
+                <code>${ctx.message.text}</code>`, discardKeyboard);
                 return;
             }
         } catch (error) {
-            ctx.reply("Please enter a title", discardKeyboard);
+            ctx.reply("Unexpected input, please enter a valid title", discardKeyboard);
             return;
         }
         ctx.wizard.state.adData.title = ctx.message.text;
@@ -86,7 +93,7 @@ const postAdWizard = new Scenes.WizardScene(
         try {
             ctx.wizard.state.adData.category = ctx.callbackQuery.data;
         } catch (error) {
-            ctx.reply("Please select a category using the buttons");
+            ctx.reply("Unexpected input, please select a category by pressing a button");
             return; // Without ctx.wizard.next() the wizard re-enters the same step.
         }
         ctx.reply("🖼️ Please enter your ad description (280 symbols)", discardKeyboard);
@@ -95,27 +102,27 @@ const postAdWizard = new Scenes.WizardScene(
     (ctx) => {
         try {
             if (ctx.message.text.length > 280) {
-                ctx.reply(`Please keep the description under 280 symbols, your input:\n
-                ${ctx.message.text}`);
+                ctx.replyWithHTML(`Please keep the description under 280 symbols, your input (tap to copy):\n
+                <code>${ctx.message.text}</code>`);
                 return;
             }
         } catch (error) {
-            ctx.reply("Please enter a description", discardKeyboard);
+            ctx.reply("Unexpected input, please enter a valid description", discardKeyboard);
             return;
         }
         ctx.wizard.state.adData.description = ctx.message.text;
-        ctx.reply("💰 Please enter your ad price or tell if it's for free", discardKeyboard);
+        ctx.reply("💰 Please enter your price terms or tell if it's for free", discardKeyboard);
         return ctx.wizard.next();
     },
     (ctx) => {
         try {
             if (ctx.message.text.length > 30) {
-                ctx.reply(`Please keep your price terms short (under 30 symbols): your input:\n
-                ${ctx.message.text}`);
+                ctx.replyWithHTML(`Please keep your price terms short (under 30 symbols): your input (tap to copy):\n
+                <code>${ctx.message.text}</code>`);
                 return;
             }
         } catch (error) {
-            ctx.reply("Please enter your price", discardKeyboard);
+            ctx.reply("Unexpected input, please enter your price terms", discardKeyboard);
             return;
         }
         ctx.wizard.state.adData.price = ctx.message.text;
@@ -129,7 +136,7 @@ const postAdWizard = new Scenes.WizardScene(
         if (ctx.callbackQuery && ctx.callbackQuery.data === "noPhoto") {
             null;
         } else if (!ctx.message.photo) {
-            ctx.reply("Please attach a photo to your ad", photoKeyboard, discardKeyboard);
+            ctx.reply("Unexpected input, please attach a photo to your ad", photoKeyboard, discardKeyboard);
             return;
         } else {
             ctx.wizard.state.adData.photos = ctx.message.photo;
@@ -177,26 +184,27 @@ const postAdWizard = new Scenes.WizardScene(
                 return ctx.scene.leave();
             }
         } catch (error) {
-            ctx.reply("Please select an option using the review buttons");
+            ctx.reply("Unexpected input, please make a selection using the buttons");
             return;
         }
     },
     (ctx) => {
+        console.log(ctx.callbackQuery.data);
         try {
             if (ctx.callbackQuery.data === "Title") {
                 ctx.wizard.state.adData.toChange = "title";
-                ctx.reply(`Enter new title, current title: \n ${ctx.wizard.adData.title}`, discardKeyboard);
+                ctx.replyWithHTML(`Enter new title, current title (tap to copy): \n<code>${ctx.wizard.state.adData.title}</code>`, discardKeyboard);
                 return ctx.wizard.next();
             } else if (ctx.callbackQuery.data === "Category") {
                 ctx.wizard.state.adData.toChange = "category";
-                ctx.reply(`Select new category, current category: \n${ctx.wizard.adData.category}`, categoryKeyboard);
+                ctx.reply(`Select new category, current category: \n${ctx.wizard.state.adData.category}`, categoryKeyboard);
                 return ctx.wizard.next();
             } else if (ctx.callbackQuery.data === "Description") {
-                ctx.reply(`Enter new description, current description: \n${ctx.wizard.adData.description}`, discardKeyboard);
+                ctx.replyWithHTML(`Enter new description, current description (tap to copy): \n<code>${ctx.wizard.state.adData.description}</code>`, discardKeyboard);
                 ctx.wizard.state.adData.toChange = "description";
                 return ctx.wizard.next();
             } else if (ctx.callbackQuery.data === "Price") {
-                ctx.reply(`Enter new price, current price: \n${ctx.wizard.adData.price}`, discardKeyboard);
+                ctx.replyWithHTML(`Enter new price, current price terms (tap to copy): \n<code>${ctx.wizard.state.adData.price}</code>`, discardKeyboard);
                 ctx.wizard.state.adData.toChange = "price";
                 return ctx.wizard.next();
             } else if (ctx.callbackQuery.data === "Photo") {
@@ -208,12 +216,12 @@ const postAdWizard = new Scenes.WizardScene(
                 return ctx.scene.leave();
             }
         } catch (error) {
-            ctx.reply("Please select an option using the edit buttons", discardKeyboard);
+            ctx.reply("Unexpected input, please select what you want to change using the buttons", discardKeyboard);
             return;
         }
     },
     (ctx) => {
-        if (ctx.wizard.state.adData.toChange !== "photo" &&
+        if (ctx.wizard.state.adData.toChange !== "photo" ||
             ctx.wizard.state.adData.toChange !== "category") {
             try {
                 if (ctx.wizard.state.adData.toChange === "title" && ctx.message.text.length > 60) {
@@ -257,6 +265,7 @@ bot.use(stage.middleware());
 
 // TODO: Fix the type for ctx.
 bot.hears("Post an ad", (ctx: any) => ctx.scene.enter("post_ad_wizard"));
+bot.command("post", (ctx: any) => ctx.scene.enter("post_ad_wizard"));
 
 postAdWizard.hears("Discard this ad", (ctx) => {
     ctx.reply("Ad discarded", Markup.removeKeyboard());

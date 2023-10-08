@@ -1,0 +1,12 @@
+{
+  "scripts": {
+    "start:unix": "concurrently \"npm run start:server\" \"npm run start:webUnix\"",
+    "start:win32": "concurrently \"npm run start:server\" \" npm run start:webWin32\"",
+    "start:server": "cd server/src && ts-node index.ts",
+    "start:webWin32": "cd web-app && set HTTPS=true&& npm start",
+    "start:webUnix": "cd web-app && HTTPS=true npm start"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.1"
+  }
+}

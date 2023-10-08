@@ -19,7 +19,7 @@ export default function Office() {
 
   useEffect(() => {
     window.addEventListener("scroll", () => {
-      if (window.scrollY > 100) {
+      if (window.scrollY > 100 && window.scrollY + window.innerHeight < document.documentElement.scrollHeight - window.innerHeight * 0.1) {
         setShowButton(true);
       } else {
         setShowButton(false);
@@ -35,18 +35,18 @@ export default function Office() {
       <ItemContainer sortBy={sorting} category={categories} office={true} />
       {
         showButton ?
-        <button className="button is-rounded is-small is-info m-2"
-        style={{
-          position: "fixed",
-          bottom: "1em",
-          left: "50%",
-          transform: "translateX(-50%)",
-        }}
-        onClick={() => {
-          window.scrollTo({top: 0, behavior: "smooth"});
-        }}
-        >Back to top</button>
-        : null
+          <button className="button is-rounded is-small is-info m-2"
+            style={{
+              position: "fixed",
+              bottom: "1em",
+              left: "50%",
+              transform: "translateX(-50%)",
+            }}
+            onClick={() => {
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+          >Back to top</button>
+          : null
       }
     </>
   );

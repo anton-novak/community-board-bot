@@ -3,7 +3,6 @@ import { Ad } from '../customTypes';
 import ItemCard from './ItemCard';
 import Notification from './Notification';
 import fetchAllAds, { fetchUserAds, getUsername } from '../services';
-import { clear } from 'console';
 
 type ItemContainerProps = {
     sortBy: string;
@@ -47,42 +46,58 @@ export default function ItemContainer({ sortBy, category, office }: ItemContaine
             fetchAllAds()
                 .then(data => setAdsData(data));
         }
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (
-        <section style={
-            {
-                gap: "0.5em"
-            }
-        }
+        <section 
+            style={{ gap: "0.5em"}}
             className="section is-flex is-flex-direction-column is-align-items-center p-2"
         >
-            <p className="subtitle m-2 has-text-centered">Tap an item for more info</p>
+            <p 
+                className="subtitle m-2 has-text-centered">
+                    Tap an item for more info
+            </p>
             {
                 filteredAds.length > 0 && filteredAds
                     .slice(0, itemsPerPage * page)
                     .map((ad: Ad) => {
                         return (
-                            <ItemCard key={ad._id} adData={ad} office={office} 
-                            deleteAdInMemory={deleteAdInMemory} setNotify={setNotify} />
+                            <ItemCard 
+                                key={ad._id} 
+                                adData={ad}
+                                office={office} 
+                                deleteAdInMemory={deleteAdInMemory}
+                                setNotify={setNotify}
+                            />
                         )
                     })
             }
             {
                 filteredAds.length > itemsPerPage * page ?
-                    <button className="button is-success m-2"
-                        onClick={() => setPage(page + 1)}>Load more</button> :
-                    null
+                    <button 
+                        className="button is-success mb-2"
+                        // style={{ transform: "translateX(-50%)" }}
+                        onClick={() => setPage(page + 1)}
+                    >
+                        Load more
+                    </button> 
+                    : null
             }
             {
                 filteredAds.length === 0 ?
-                    <p className="subtitle has-text-centered">No ads found</p> :
-                    null
+                    <p 
+                        className="subtitle has-text-centered">
+                            No ads found
+                    </p>
+                    : null
             }
             {
-                notify ? <Notification notification="Ad deleted" /> : null
+                notify ? 
+                    <Notification 
+                        notification="Ad deleted"
+                     />
+                : null
             }
         </section>
     )
