@@ -5,15 +5,25 @@ import { fetchTelegramPic, sendAdToUser } from "../services";
 import spinner from "../assets/spinner.gif";
 import placeholder from "../assets/no_photo_500.png";
 import Notification from "./Notification";
+import './ItemModal.css';
 
 type ItemModalProps = {
     trigger: () => void;
     adData: Ad;
 }
 
+const style = {
+    position: "fixed",
+    top: 0,
+    left: "50%",
+    transform: "translateX(-50%)",
+    zIndex: 9999
+};
+
 export default function ItemModal({ trigger, adData }: ItemModalProps) {
     const [pic, setPic] = useState<string | undefined>(undefined);
     const [notify, setNotify] = useState<boolean>(false);
+    const [fadeOut, setFadeOut] = useState<boolean>(false);
 
     useEffect(() => {
         if (adData.photos.length > 0) {
@@ -26,24 +36,47 @@ export default function ItemModal({ trigger, adData }: ItemModalProps) {
                     }
                 })
         } else {
-            setPic(placeholder);
+            setPic("no_photo");
         }
     }, [adData.photos])
 
     return (
         <div className="modal is-active">
             <div className="modal-background">
-                <div className="modal-content mt-3"
-                    style={{ maxHeight: "95vh" }}>
-                    <div className="card" style={{ width: "90%" }}>
+                <div className="modal-content mt-3 mb-0"
+                    onScroll={(e) => {
+                        const target = e.target as HTMLDivElement;
+                        if (target.scrollTop > 0) {
+                            setFadeOut(true);
+                        } else {
+                            setFadeOut(false);
+                        }
+                    }}
+                    style={{
+                        maxHeight: "95vh",
+                        position: "fixed",
+                        bottom: 0,
+                        transform: "translateX(-50%)",
+                        animation: "slide-up 0.4s ease-out forwards",
+                        zIndex: 9
+                    }}>
+                    <div className="card" style={{
+                        width: "90%",
+                        borderBottomLeftRadius: 0,
+                        borderBottomRightRadius: 0,
+                    }}>
                         <div className="card-image">
-                            <figure className="image">
-                                {
-                                    pic ?
-                                        <img src={pic} alt="Ad pic" />
-                                        : <img src={spinner} alt="Loading spinner" />
-                                }
-                            </figure>
+                            {pic === "no_photo" ?
+                                null
+                                :
+                                <figure className="image">
+                                    {
+                                        pic ?
+                                            <img src={pic} alt="Ad pic" />
+                                            : <img src={spinner} alt="Loading spinner" />
+                                    }
+                                </figure>
+                            }
                         </div>
                         <div className="card-content"
                         >
@@ -56,12 +89,12 @@ export default function ItemModal({ trigger, adData }: ItemModalProps) {
                                 <a onClick={(e) => {
                                     e.preventDefault();
                                     sendAdToUser(adData._id)
-                                        .then(() => {setNotify(true)})
+                                        .then(() => { setNotify(true) })
                                 }
-                                } href="#" className="card-footer-item" style={{ maxWidth: "30%" }}>Save</a>
+                                } href="#" className="card-footer-item" style={{ maxWidth: "20%" }}>Save</a>
                                 <a href={`https://t.me/${adData.username}`} className="card-footer-item">Contact {adData.username}</a>
                                 <a href="#" className="card-footer-item"
-                                    style={{ maxWidth: "30%" }}
+                                    style={{ maxWidth: "20%" }}
                                     onClick={(e) => {
                                         e.preventDefault();
                                         trigger();
@@ -70,6 +103,20 @@ export default function ItemModal({ trigger, adData }: ItemModalProps) {
                             </footer>
                         </div>
                     </div>
+                    {
+                        !fadeOut ?
+                            <div style={{
+                                position: "fixed",
+                                bottom: 0,
+                                background: "linear-gradient(to top, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.5))",
+                                width: "90%",
+                                height: "5em",
+                                zIndex: 99,
+                                animation: "fade-in 0.4s ease-out forwards"
+                            }}>
+                            </div>
+                            : null
+                    }
                 </div>
             </div>
             {

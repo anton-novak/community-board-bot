@@ -13,6 +13,7 @@ Often people use community chats as ad boards, but there are disadvantages to th
 # Features
 * Complete in-bot ad posting process with editing, validation and error handling.
 * Easy-to-use and lightweight web app interface that allows to browse, filter, sort and manage the ads.
+* Saving ads to the chat with the bot for keeping and forwarding to other users.
 * One-click transition to Telegram chats with the posters to initiate a conversation about the ads.
 * Username check aimed to ensure the users' ability to connect with each other.
 * Telegram-based image handling which keeps bot server space at the minimum.
@@ -83,7 +84,7 @@ App: routes
 ```
 `services` file contains functions that query the back end and helper functions.
 
-There are no `.css` files for pages and components, but for a `.css` file for animating `<Notification/>`. Styling is done inline using Bulma stylesheet classes or `style` objects for fine-tuning.
+There are no `.css` files for pages and components, but for `.css` files with keyframes for animations. Styling is done inline using Bulma stylesheet classes or `style` objects for fine-tuning.
 
 # Challenges & roadmap
 
