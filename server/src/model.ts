@@ -36,11 +36,15 @@ export async function deleteAd(_id: string) {
 }
 
 export async function registerUser(username: string, chatId: number) {
-    if (!await users.get(username)) {
-        const response = await users.insert({ _id: username, chatId: chatId });
-        return response;
-    } else {
+    try {
+        console.log("db record check");
+        const user = await users.get(username);
         console.log("A returning user");
+        return;
+    } catch (error) {
+        const response = await users.insert({ _id: username, chatId: chatId });
+        console.log("New user");
+        return;
     }
 }
 

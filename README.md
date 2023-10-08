@@ -21,13 +21,16 @@ Often people use community chats as ad boards, but there are disadvantages to th
 
 # Getting started
 
+To work with this code you must have a grasp of concepts and tools of modern web development, including HTML, CSS, JavaScript, TypeScript, Node.js, React framework, HTTP protocol, NoSQL databases.
+
 ### Starting the bot and the mini-app in development mode
 
 Prerequisites:
+* Git & GitHub
 * Telegram bot token - pay a respectful visit to the [BotFather](https://t.me/BotFather)
-* [Node.js](https://nodejs.org/en)
-* [CouchDB](https://couchdb.apache.org/)
-* TypeScript (`npm i -g typescript` in your OS terminal)
+* [Node.js](https://nodejs.org/en) with `npm` package manager
+* [CouchDB](https://couchdb.apache.org/) - please follow the installation and setip instructions from the developers
+* TypeScript with `ts-node` (`npm i -g typescript` and `npm i -g ts-node` in your OS terminal)
 
 Clone this repo into your local directory, navigate to both `server` and `web-app` directories in your OS terminal and run `npm i` to install back-end and front-end dependencies. 
 

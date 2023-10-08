@@ -12,14 +12,6 @@ type ItemModalProps = {
     adData: Ad;
 }
 
-const style = {
-    position: "fixed",
-    top: 0,
-    left: "50%",
-    transform: "translateX(-50%)",
-    zIndex: 9999
-};
-
 export default function ItemModal({ trigger, adData }: ItemModalProps) {
     const [pic, setPic] = useState<string | undefined>(undefined);
     const [notify, setNotify] = useState<boolean>(false);
