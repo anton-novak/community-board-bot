@@ -20,8 +20,8 @@ Often people use community chats as ad boards, but there are disadvantages to th
 * Telegram-based authentication - the mini-app is not accessible from outside the bot.
 
 <p align="center">
-<img src="./for_readme/Slide1.png" width="45%"/>
-<img src="./for_readme/Slide2.png" width="45%"/>
+<img src="./for_readme/slide1.png" width="45%"/>
+<img src="./for_readme/slide2.png" width="45%"/>
 </p>
 
 # Getting started
