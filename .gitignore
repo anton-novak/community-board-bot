@@ -1,3 +1,5 @@
 node_modules
 .env
 shed_pic.png
+mock_ads/*.json
+mock_ads/*.jpg
