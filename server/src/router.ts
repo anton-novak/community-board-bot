@@ -8,3 +8,5 @@ router.get('/ads/:checkString/:username', validateTelegramHash, getUserAdsContro
 router.get('/pics/:checkString/:file_id', validateTelegramHash, getTelegramPic);
 router.delete('/ads/:checkString/:_id', validateTelegramHash, establishUser, deleteAdController);
 router.post('/save/:checkString', validateTelegramHash, establishUser, saveAdController);
+// Deployment code.
+router.get('/', (req, res) => { res.status(200), res.send('Hello World!'); });

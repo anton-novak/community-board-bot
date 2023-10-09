@@ -53,17 +53,17 @@ COUCH_DB_PROTOCOL="http"
 TELEGRAM_FILE_URL="https://api.telegram.org/file/bot"
 COMMUNITY_LABEL="<community_label>"
 ```
-Point your front-end services to the back end by editing the first line of `services` file in `/web-app/src` directory (by default the back end server will run at http://localhost:3456).
+Point your front-end services to the back end by editing the first line of `services` file in `/web-app/src` directory (by default the back end server will run at http://127.0.0.1:<your_port>).
 
-You can also create an `.env` file in the `web-app` directory if you want to change the default `3000` port used by `create-react-app` scripts. Just put `PORT=<your_port>` in there.
+You can also create an `.env` file in the `/web-app` directory if you want to change the default `3000` port used by `create-react-app` scripts. Just put `PORT=<your_port>` in there.
 
 #### Start-up
 
 To start both the back end and the front end you can use the pre-made start-up scripts. Navigate to the top directory of the repo in your OS terminal, run `npm i` to download `concurrently` package and run `npm run start:win32` on Windows or `npm run start:unix` on UNIX OS. 
 
-If the script fails, or you want to run thing in separate terminals, you can do the following:
+If the script fails, or you want to run things in separate terminals, you can do the following:
 * Navigate to `/server` directory and start the back end with `npm run start_server` command in your OS terminal. 
-* To start the front-end server run `($env:HTTPS = "true") -and (npm run start_webapp)` from `/web-app` directory in Windows PowerShell or `HTTPS=true npm start_webapp` in a UNIX OS terminal (Create React App [docs page](https://create-react-app.dev/docs/using-https-in-development) on that).
+* To start the front-end server run `($env:HTTPS = "true") -and (npm run start_webapp)` from `/web-app` directory in Windows PowerShell or `HTTPS=true npm run start_webapp` in a UNIX OS terminal (Create React App [docs page](https://create-react-app.dev/docs/using-https-in-development) on that).
     * HTTPS protocol is a must for starting a web app from a Telegram bot, so we have to use it.
 
 Now you are good to go, just `/start` a conversation with the bot in Telegram. In development mode you will see a browser warning when opening the mini-app about not using a proper HTTPS certificate - just click through it.
