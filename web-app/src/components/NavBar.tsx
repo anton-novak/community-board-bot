@@ -31,7 +31,7 @@ export default function NavBar({ sortingSelectHandler, categoriesSelectHandler, 
                     <option>All ads</option>
                     <option>Electronics & appliances</option>
                     <option>Clothes & accessories</option>
-                    <option>Help & service</option>
+                    <option>Help & services</option>
                     <option>Building materials & DIY</option>
                     <option>Cars, bikes & parts</option>
                     <option>Beauty & health</option>

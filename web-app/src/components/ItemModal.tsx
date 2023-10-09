@@ -1,8 +1,9 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import { Ad } from "../customTypes";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, /* useRef */ } from "react";
 import { fetchTelegramPic, sendAdToUser } from "../services";
 import spinner from "../assets/spinner.gif";
+import chevron from "../assets/up_chevron.png";
 import Notification from "./Notification";
 import './ItemModal.css';
 
@@ -14,9 +15,9 @@ type ItemModalProps = {
 export default function ItemModal({ trigger, adData }: ItemModalProps) {
     const [pic, setPic] = useState<string | undefined>(undefined);
     const [notify, setNotify] = useState<boolean>(false);
-    const [fadeOut, setFadeOut] = useState<boolean>(false);
+    // const [fadeOut, setFadeOut] = useState<boolean>(false);
 
-    const modalContentRef = useRef<HTMLDivElement>(null);
+    // const modalContentRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (adData.photos.length > 0) {
@@ -33,22 +34,25 @@ export default function ItemModal({ trigger, adData }: ItemModalProps) {
                     if (blob) {
                         const objectURL = URL.createObjectURL(blob);
                         setPic(objectURL);
+                    } else {
+                        setPic("no_photo");
                     }
                 })
         } else {
             setPic("no_photo");
         }
 
-        if (modalContentRef.current) {
-            const target = modalContentRef.current;
-            console.log(target.scrollHeight, target.clientHeight);
-            setTimeout(() => {
-                if (target.scrollHeight > target.clientHeight) {
-                    setFadeOut(true);
-                }
-            }, 100);
-        }
-    }, [adData.photos])
+        // if (modalContentRef.current) {
+        //     const target = modalContentRef.current;
+        //     console.log(target.scrollHeight, target.clientHeight);
+        //     setTimeout(() => {
+        //         if (target.scrollHeight > target.clientHeight) {
+        //             setFadeOut(true);
+        //         }
+        //     }, 100);
+        // }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     return (
         <div
@@ -59,15 +63,15 @@ export default function ItemModal({ trigger, adData }: ItemModalProps) {
             >
                 <div
                     className="modal-content mt-3 mb-0"
-                    ref={modalContentRef}
-                    onScroll={(e) => {
-                        const target = e.target as HTMLDivElement;
-                        if (target.scrollTop === 0) {
-                            setFadeOut(true);
-                        } else if (target.scrollTop > 0) {
-                            setFadeOut(false);
-                        }
-                    }}
+                    // ref={modalContentRef}
+                    // onScroll={(e) => {
+                    //     const target = e.target as HTMLDivElement;
+                    //     if (target.scrollTop === 0) {
+                    //         setFadeOut(true);
+                    //     } else if (target.scrollTop > 0) {
+                    //         setFadeOut(false);
+                    //     }
+                    // }}
                     style={{
                         maxHeight: "95vh",
                         position: "fixed",
@@ -85,6 +89,16 @@ export default function ItemModal({ trigger, adData }: ItemModalProps) {
                             borderBottomRightRadius: 0,
                         }}
                     >
+                        <header
+                            className="card-header is-flex is-justify-content-center"
+                        >
+                            <span className="icon">
+                                <img
+                                    src={chevron}
+                                    alt="Up chevron"
+                                />
+                            </span>
+                        </header>
                         <div
                             className="card-image"
                         >
@@ -153,7 +167,7 @@ export default function ItemModal({ trigger, adData }: ItemModalProps) {
                             </footer>
                         </div>
                     </div>
-                    {
+                    {/* {
                         fadeOut ?
                             <div
                                 style={{
@@ -168,7 +182,7 @@ export default function ItemModal({ trigger, adData }: ItemModalProps) {
                             >
                             </div>
                             : null
-                    }
+                    } */}
                 </div>
             </div>
             {

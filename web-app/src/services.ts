@@ -25,10 +25,14 @@ export default async function fetchAllAds() {
 export async function fetchTelegramPic(file_id: string) {
     try {
         const response = await fetch(`${serverUrl}/pics/${window.Telegram.WebApp.initData}/${file_id}`);
+        if (response.status === 404) {
+            return undefined;
+        }
         const blob = await response.blob();
         return blob;
     } catch (error) {
         console.error(error);
+        return undefined;
     }
 }
 

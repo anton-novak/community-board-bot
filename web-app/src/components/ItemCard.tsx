@@ -39,15 +39,19 @@ export default function ItemCard({ adData, office, deleteAdInMemory, setNotify }
             }
             fetchTelegramPic(file_id)
                 .then(async blob => {
+                    console.log(blob);
                     if (blob) {
                         const objectURL = URL.createObjectURL(blob);
                         setPic(objectURL);
+                    } else {
+                        setPic(placeholder);
                     }
                 })
         } else {
             setPic(placeholder);
         }
-    }, [adData.photos])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     return (
         <>
