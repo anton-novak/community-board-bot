@@ -5,13 +5,9 @@ import express from 'express';
 import cors from 'cors';
 import { bot } from './bot';
 import { router } from './router';
-// import bodyParser from 'body-parser';
 
 const app = express();
 const port = process.env.SERVER_PORT;
-
-// app.use(express.static(clientFolder)); // to use middleware you MUST initialize it with app.use()
-// this method is a shorthand for serving static files from a folder - you can do it in the usual way via router, etc.
 
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());

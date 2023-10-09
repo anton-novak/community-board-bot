@@ -55,9 +55,11 @@ COMMUNITY_LABEL="<community_label>"
 ```
 Point your front-end services to the back end by editing the first line of `services` file in `/web-app/src` directory (by default the back end server will run at http://localhost:3456).
 
+You can also create an `.env` file in the `web-app` directory if you want to change the default `3000` port used by `create-react-app` scripts. Just put `PORT=<your_port>` in there.
+
 #### Start-up
 
-To start both the back end and the front end you can use the pre-made start-up scripts. Navigate to the top directory of the repo in your OS terminal, run `npm i` to download `concurrently` package and run `npm run start:win32` on Windows or `npm run start:unix` on UNIX OS (*UNIX script not tested*). 
+To start both the back end and the front end you can use the pre-made start-up scripts. Navigate to the top directory of the repo in your OS terminal, run `npm i` to download `concurrently` package and run `npm run start:win32` on Windows or `npm run start:unix` on UNIX OS. 
 
 If the script fails, or you want to run thing in separate terminals, you can do the following:
 * Navigate to `/server/src` directory and start the back end with `ts-node index.ts` command in your OS terminal. 
