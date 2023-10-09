@@ -12,9 +12,11 @@ const port = process.env.SERVER_PORT;
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.use(router);
+// Deployment code.
+// app.use('/api', router);
 
-app.listen(port, function () {
-	console.log(`Server running on port ${port}.`)
+app.listen(parseInt(port || '3456'), '127.0.0.1', function () {
+	console.log(`Server running on port ${port || 3456}.`)
 });
 
 bot.launch();

@@ -38,7 +38,7 @@ Prerequisites:
 * TypeScript with `ts-node` (run `npm i -g typescript` and `npm i -g ts-node` in your OS terminal)
     * If you get an execution policy error in PowerShell, start it with administrator priviliges and run `Set-ExecutionPolicy RemoteSigned` (by doing so you allow running unsigned scripts locally which should be fine as long as your are aware of what you are running and use trusted sources)
 
-Clone this repo into your local directory, navigate to both `server` and `web-app` directories in your OS terminal and run `npm i` to install back-end and front-end dependencies. 
+Clone this repo (**`public` branch**) into your local directory, navigate to both `server` and `web-app` directories in your OS terminal and run `npm i` to install back-end and front-end dependencies. 
 
 Create `.env` file (just a blank file named exactly `.env`) in the `/server/src/` directory and populate it with environment variables (**copy the list below into the file, read through it and change accordingly - some of the values are used as examples**):
 
@@ -62,8 +62,9 @@ You can also create an `.env` file in the `web-app` directory if you want to cha
 To start both the back end and the front end you can use the pre-made start-up scripts. Navigate to the top directory of the repo in your OS terminal, run `npm i` to download `concurrently` package and run `npm run start:win32` on Windows or `npm run start:unix` on UNIX OS. 
 
 If the script fails, or you want to run thing in separate terminals, you can do the following:
-* Navigate to `/server/src` directory and start the back end with `ts-node index.ts` command in your OS terminal. 
-* To start the front-end server run `($env:HTTPS = "true") -and (npm start)` from `/web-app` directory in Windows PowerShell or `HTTPS=true npm start` in a UNIX OS terminal (Create React App [docs page](https://create-react-app.dev/docs/using-https-in-development) on that).
+* Navigate to `/server` directory and start the back end with `npm run start_server` command in your OS terminal. 
+* To start the front-end server run `($env:HTTPS = "true") -and (npm run start_webapp)` from `/web-app` directory in Windows PowerShell or `HTTPS=true npm start_webapp` in a UNIX OS terminal (Create React App [docs page](https://create-react-app.dev/docs/using-https-in-development) on that).
+    * HTTPS protocol is a must for starting a web app from a Telegram bot, so we have to use it.
 
 Now you are good to go, just `/start` a conversation with the bot in Telegram. In development mode you will see a browser warning when opening the mini-app about not using a proper HTTPS certificate - just click through it.
 

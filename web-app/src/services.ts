@@ -1,4 +1,6 @@
 const serverUrl = "http://localhost:3456";
+// Deployment code.
+// const serverUrl = "https://communityboardbot.online/api";
 
 declare global {
     interface Window {
