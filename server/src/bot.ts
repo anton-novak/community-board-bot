@@ -221,7 +221,7 @@ const postAdWizard = new Scenes.WizardScene(
         }
     },
     (ctx) => {
-        if (ctx.wizard.state.adData.toChange !== "photo" ||
+        if (ctx.wizard.state.adData.toChange !== "photo" &&
             ctx.wizard.state.adData.toChange !== "category") {
             try {
                 if (ctx.wizard.state.adData.toChange === "title" && ctx.message.text.length > 60) {
@@ -230,6 +230,10 @@ const postAdWizard = new Scenes.WizardScene(
                     return;
                 } else if (ctx.wizard.state.adData.toChange === "description" && ctx.message.text.length > 280) {
                     ctx.reply(`Please keep the description under 280 symbols, your input:\n
+                        ${ctx.message.text}`, discardKeyboard);
+                    return;
+                } else if (ctx.wizard.state.adData.toChange === "price" && ctx.message.text.length > 30) {
+                    ctx.reply(`Please keep the price terms under 30 symbols, your input:\n
                         ${ctx.message.text}`, discardKeyboard);
                     return;
                 }

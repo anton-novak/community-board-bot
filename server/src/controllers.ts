@@ -34,7 +34,8 @@ export async function getTelegramPic (req: Request, res: Response) {
     } catch (error) {
         console.log(error);
         res.status(404);
-        res.send("Failed to fetch the pic")
+        res.send("Failed to fetch the pic");
+        return error;
     }
 }
 
@@ -69,7 +70,12 @@ export async function saveAdController (req: Request, res: Response) {
         const chatId = await getChatId(req.app.locals.user);
         const ad = await getAd(req.body._id);
         if (ad.photos.length > 0) {
-            telegram.sendPhoto(chatId, ad.photos[0].file_id, { caption: messageConstructor(ad) });
+            try {
+                const send = await telegram.sendPhoto(chatId, ad.photos[0].file_id, { caption: messageConstructor(ad) });
+            } catch (error) {
+                console.log(error);
+                telegram.sendMessage(chatId, messageConstructor(ad));
+            }
         } else {
             telegram.sendMessage(chatId, messageConstructor(ad));
         }
