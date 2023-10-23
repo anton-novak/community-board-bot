@@ -52,3 +52,14 @@ export async function establishUser (req: Request, res: Response, next: NextFunc
     req.app.locals.user = user;
     next();
 }
+
+export async function loggingMiddleware (req: Request, res: Response, next: NextFunction) {
+    console.log(new Date().toISOString(), req.method, req.url);
+    const originalSend = res.send;
+    // @ts-ignore
+    res.send = function (body) {
+        console.log(new Date().toISOString(), res.statusCode, JSON.stringify(body).slice(0, 100));
+        originalSend.call(this, body);
+    }
+    next();
+}
