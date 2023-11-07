@@ -29,9 +29,13 @@ To work with this code you must have a grasp of concepts and tools of modern web
 
 ### Working demo
 
-You can try out the bot here: https://t.me/bh11412_test_bot. The idea is that each community that wants to use the bot deploys its own instance of it.
+Taken down after the contest ended.
 
-**Note to contest reviewers**: please contact https://t.me/boyMCMXCII if, for some reason, the server becomes not responsive - we'll start it up straight away. Telegram servers sometimes fail to return images, in that case you'll see fallback placeholders.
+~~You can try out the bot here: https://t.me/bh11412_test_bot. The idea is that each community that wants to use the bot deploys its own instance of it.~~
+
+~~**Note to contest reviewers**: please contact https://t.me/boyMCMXCII if, for some reason, the server becomes not responsive - we'll start it up straight away. Telegram servers sometimes fail to return images, in that case you'll see fallback placeholders.~~
+
+
 
 ### Starting the bot and the mini-app in development mode
 
@@ -132,7 +136,7 @@ A decision was made to rely on Telegram API and servers to handle images. The AP
 
 * We have not found a way to capture `file_id` of multiple photos sent by a user as a media group - only `file_id` of the last photo is available. It seems to be a [requested feature](https://github.com/python-telegram-bot/python-telegram-bot/wiki/Frequently-requested-design-patterns#how-do-i-deal-with-a-media-group) for the Bot API, so either we wait for the implementation or come up with a workaround.
 * Getting into bot development proved harder than we imagined because of the style of documenting the libraries and the APIs. Thankfully, some answers were found in community discussions, in particular this [post](https://github.com/telegraf/telegraf/issues/705#issuecomment-549056045) by Ivan Malyugin on using `Scene` and `WizardScene` was most helpful.
-* We have not found an easy way to test the bot and the web app on a mobile device. This became possible closer to the submission deadline after deploying the bot, and required purchasing a virtual server, domain name and SLL certificate to set up HTTPS protocol and handling the deployment. A feature got commented out as a result as it did not behave as expected on a mobile device (fade out on modal overflow to let user know that there's more content down below, substituted with drawer pull-out chevron icon on top).
+* We have not found an easy way to test the bot and the web app on a mobile device. This became possible closer to the submission deadline after deploying the bot, and required purchasing a virtual server, domain name and SSL certificate to set up HTTPS protocol and handling the deployment. A feature got commented out as a result as it did not behave as expected on a mobile device (fade out on modal overflow to let user know that there's more content down below, substituted with drawer pull-out chevron icon on top).
 * Potential additional features:
     * In-web-app editing of ads.
     * Geolocation-based registration process for keeping things truly local.
